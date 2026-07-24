@@ -4,7 +4,7 @@ function scrollGames() {
     });
 }
 
-// Lekkie animacje przy scrollu
+// Opcjonalnie: lekkie animacje przy scrollu
 window.addEventListener('scroll', () => {
     document.querySelectorAll('.card').forEach((card, i) => {
         if (card.getBoundingClientRect().top < window.innerHeight * 0.8) {
