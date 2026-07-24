@@ -3,86 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYGNAŁ - ZenGames</title>
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <title>SYGNAŁ - Gra</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="game-container"></div>
-
-<!-- MENU GŁÓWNE -->
-<div id="main-menu" class="menu active">
-    <div class="menu-content">
-        <h1>📻 SYGNAŁ</h1>
-        <p class="subtitle">Horror • Mystery • 1998</p>
-        
-        <div class="menu-story">
-            <p>03:17</p>
-            <p class="small">Stara stacja radiowa. Opuszczone lata temu.</p>
-            <p class="small">Ale sygnał wciąż nadaje.</p>
-        </div>
-
-        <button class="btn-primary" onclick="startGame()">GRAJ</button>
-        
-        <div class="menu-footer">
-            <p>© 2026 ZENMAT GAMES</p>
+<div id="game">
+    <!-- MENU GŁÓWNE -->
+    <div id="menu" class="screen active">
+        <div class="menu-box">
+            <h1>📻 SYGNAŁ</h1>
+            <p class="subtitle">1998 • 03:17</p>
+            <p class="story">Opuszczona stacja radiowa.</p>
+            <p class="story">Ale sygnał wciąż nadaje...</p>
+            <button onclick="startGame()" class="btn">WEJDŹ</button>
         </div>
     </div>
-</div>
 
-<!-- SCREEN ŚMIERCI -->
-<div id="death-screen" class="menu">
-    <div class="menu-content">
-        <h2>POŁĄCZENIE PRZERWANE</h2>
-        <p class="small">Coś poszło nie tak.</p>
-        <button class="btn-primary" onclick="resetGame()">SPRÓBUJ PONOWNIE</button>
-        <button class="btn-secondary" onclick="backToMenu()">MENU</button>
+    <!-- EKRAN GRY -->
+    <div id="gameScreen" class="screen">
+        <div class="game-content">
+            <h2>STACJA RADIOWA</h2>
+            
+            <div class="station">
+                <div class="room" onclick="enterRoom('entrance')">
+                    <span>[ WEJŚCIE ]</span>
+                </div>
+                <div class="room" onclick="enterRoom('control')">
+                    <span>[ SALA KONTROLI ]</span>
+                </div>
+                <div class="room" onclick="enterRoom('basement')">
+                    <span>[ PIWNICA ]</span>
+                </div>
+            </div>
+
+            <div class="radio-box">
+                <p id="radioStatus">RADIO: OFF</p>
+                <button onclick="toggleRadio()" class="btn small">R - Włącz Radio</button>
+                <button onclick="respondSignal()" class="btn small">E - Odpowiedz</button>
+                <button onclick="destroyRadio()" class="btn small">Q - Zniszcz</button>
+            </div>
+
+            <p id="message" class="message"></p>
+            
+            <button onclick="backToMenu()" class="btn back">← WYJDŹ</button>
+        </div>
     </div>
-</div>
 
-<!-- ENDING 1 -->
-<div id="ending-1" class="menu">
-    <div class="menu-content">
-        <h2>WYŁĄCZENIE</h2>
-        <p class="small">Niszczyłeś nadajnik.</p>
-        <p class="small">Sygnał znika.</p>
-        <p class="small">Cisza.</p>
-        <br>
-        <p class="small" style="color: #ff6b6b;">Ale w domu, radio się włącza samo...</p>
-        <button class="btn-primary" onclick="backToMenu()">MENU</button>
+    <!-- ENDING 1 -->
+    <div id="ending1" class="screen">
+        <div class="ending-box">
+            <h2>WYŁĄCZENIE</h2>
+            <p>Niszczyłeś nadajnik.</p>
+            <p>Sygnał znika.</p>
+            <p class="red">Ale w domu radio włącza się samo...</p>
+            <button onclick="backToMenu()" class="btn">MENU</button>
+        </div>
     </div>
-</div>
 
-<!-- ENDING 2 -->
-<div id="ending-2" class="menu">
-    <div class="menu-content">
-        <h2>ODPOWIEDŹ</h2>
-        <p class="small">Odpowiadasz na sygnał.</p>
-        <p class="small">Cisza.</p>
-        <br>
-        <p class="small">"Dziękujemy. Teraz możemy przejść dalej."</p>
-        <br>
-        <p class="small">Ekran gaśnie.</p>
-        <button class="btn-primary" onclick="backToMenu()">MENU</button>
+    <!-- ENDING 2 -->
+    <div id="ending2" class="screen">
+        <div class="ending-box">
+            <h2>ODPOWIEDŹ</h2>
+            <p>Odpowiadasz na sygnał.</p>
+            <p>Cisza.</p>
+            <p>"Dziękujemy. Teraz możemy przejść dalej."</p>
+            <p class="red">Ekran gaśnie.</p>
+            <button onclick="backToMenu()" class="btn">MENU</button>
+        </div>
     </div>
-</div>
 
-<!-- ENDING 3 -->
-<div id="ending-3" class="menu">
-    <div class="menu-content">
-        <h2>KONTYNUACJA</h2>
-        <p class="small">Zostawiłeś nadajnik włączony.</p>
-        <br>
-        <p class="small">Kilka dni później...</p>
-        <p class="small">Na całym świecie ludzie słyszą ten sam sygnał.</p>
-        <br>
-        <p class="small">Coś właśnie się zaczęło.</p>
-        <button class="btn-primary" onclick="backToMenu()">MENU</button>
+    <!-- ENDING 3 -->
+    <div id="ending3" class="screen">
+        <div class="ending-box">
+            <h2>KONTYNUACJA</h2>
+            <p>Zostawiłeś nadajnik włączony.</p>
+            <p>Kilka dni później...</p>
+            <p>Na całym świecie ludzie słyszą ten sam sygnał.</p>
+            <p class="red">Coś właśnie się zaczęło.</p>
+            <button onclick="backToMenu()" class="btn">MENU</button>
+        </div>
     </div>
 </div>
 
 <script src="game.js"></script>
-
 </body>
 </html>
