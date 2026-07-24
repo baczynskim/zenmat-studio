@@ -1,0 +1,199 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background: #0a0a0a;
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+}
+
+#game-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* MENU */
+.menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 100%);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: scanlines 0.15s linear infinite;
+}
+
+.menu.active {
+    display: flex;
+}
+
+.menu-content {
+    text-align: center;
+    background: rgba(10, 10, 10, 0.9);
+    border: 2px solid #ff0000;
+    padding: 60px;
+    max-width: 500px;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.5), inset 0 0 30px rgba(255, 0, 0, 0.1);
+    position: relative;
+}
+
+.menu-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(255, 0, 0, 0.03) 0px,
+        rgba(255, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+}
+
+.menu h1 {
+    font-size: 3em;
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+    margin-bottom: 10px;
+    letter-spacing: 3px;
+}
+
+.menu h2 {
+    font-size: 2.5em;
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 0.9em;
+    margin-bottom: 30px;
+    letter-spacing: 2px;
+}
+
+.menu-story {
+    margin: 30px 0;
+    color: #aaa;
+    font-size: 0.95em;
+    line-height: 1.8;
+}
+
+.menu-story p:first-child {
+    color: #ff0000;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px #ff0000;
+}
+
+.small {
+    font-size: 0.9em;
+    color: #888;
+}
+
+.btn-primary, .btn-secondary {
+    margin-top: 20px;
+    padding: 12px 30px;
+    border: 2px solid #ff0000;
+    background: #0a0a0a;
+    color: #ff0000;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+    background: #ff0000;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    margin-left: 10px;
+    border-color: #666;
+    color: #666;
+}
+
+.btn-secondary:hover {
+    background: #666;
+    color: #0a0a0a;
+    box-shadow: 0 0 20px rgba(100, 100, 100, 0.6);
+}
+
+.menu-footer {
+    margin-top: 40px;
+    font-size: 0.8em;
+    color: #555;
+}
+
+/* ANIMACJA SCANLINES */
+@keyframes scanlines {
+    0% { text-shadow: 0 0 0 #ff0000; }
+    50% { text-shadow: 0 0 5px #ff0000; }
+    100% { text-shadow: 0 0 0 #ff0000; }
+}
+
+/* HUD GRY */
+.game-hud {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.hud-line {
+    margin: 5px 0;
+    letter-spacing: 1px;
+}
+
+.signal-indicator {
+    color: #ff0000;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .menu-content {
+        padding: 40px 20px;
+        margin: 20px;
+    }
+    
+    .menu h1 {
+        font-size: 2em;
+    }
+    
+    .btn-primary, .btn-secondary {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+    }
+}
