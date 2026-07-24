@@ -17,7 +17,7 @@ const config = {
             debug: false
         }
     },
-    scene: [StationScene, ExplorateScene, EndingScene],
+    scene: [StationScene, ExploreScene, EndingScene],
     backgroundColor: '#0a0a0a'
 };
 
