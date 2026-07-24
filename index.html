@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZENMAT STUDIO</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
 <header>
     <nav>
-        <h2>ZENMAT STUDIO</h2>
+        <h2>ZENMAT</h2>
         <div>
             <a href="#games">Projekty</a>
             <a href="#about">Studio</a>
@@ -20,93 +20,58 @@
     </nav>
 
     <section class="hero">
-        <h1>Indie studio tworzące<br>gry i doświadczenia cyfrowe</h1>
-        <p>Łączymy kreatywność, technologię i klimat, tworząc projekty z charakterem.</p>
-
-        <button onclick="scrollGames()">Nasze projekty</button>
+        <h1>Indie studio tworzące<br><span class="highlight">gry i doświadczenia cyfrowe</span></h1>
+        <p>Łączymy mrok, kreatywność i technologię,<br>tworząc światy, które zostają w pamięci.</p>
+        <button onclick="scrollGames()">Zobacz projekty</button>
     </section>
 </header>
 
-
 <section id="games">
-
     <h2>Projekty ZENMAT</h2>
-
     <div class="cards">
-
         <div class="card">
-            <h3>📻 Sygnał</h3>
-            <p>
-                Horror o opuszczonej stacji radiowej.  
-                Eksploruj, odsłuchuj stare transmisje i odkrywaj, co naprawdę wydarzyło się w eterze.
-            </p>
-
+            <div class="card-icon">📻</div>
+            <h3>Sygnał</h3>
+            <p>Horror o opuszczonej stacji radiowej. Eksploruj, odsłuchuj stare transmisje i odkrywaj prawdę.</p>
             <span class="status in-dev">W produkcji</span>
-            
             <button class="btn-play" onclick="window.open('/zenmat-studio/sygnal/', '_blank')">▶ GRAJ</button>
         </div>
 
-
         <div class="card">
-            <h3>🥟 Obby Squishy Dumpling</h3>
-            <p>
-                Dynamiczne obby pełne przeszkód, sekretów i kolekcjonowania squishy.
-                Lekki klimat, szybka zabawa, dużo kolorów.
-            </p>
-
+            <div class="card-icon">🥟</div>
+            <h3>Obby Squishy Dumpling</h3>
+            <p>Dynamiczne obby pełne koloru, sekretów i squishy'ów. Szybka, uzależniająca zabawa.</p>
             <span class="status in-dev">W produkcji</span>
         </div>
 
-
         <div class="card">
-            <h3>🌐 Strony internetowe</h3>
-            <p>
-                Tworzymy nowoczesne, szybkie i estetyczne strony internetowe dla marek, twórców i firm.
-            </p>
-
+            <div class="card-icon">🌐</div>
+            <h3>Strony internetowe</h3>
+            <p>Nowoczesne, szybkie i estetyczne strony dla marek, twórców i firm.</p>
             <span class="status service">Usługa</span>
         </div>
-
     </div>
-
 </section>
-
-
 
 <section id="about">
-
     <h2>Kim jesteśmy</h2>
-
     <p>
-        ZENMAT STUDIO to niezależne studio tworzące gry i projekty cyfrowe.
-        Skupiamy się na klimacie, pomysłach i dopracowanych doświadczeniach.
-        Tworzymy rzeczy, które po prostu dobrze się czują.
+        ZENMAT STUDIO to niezależne studio tworzące gry i projekty cyfrowe.<br>
+        Skupiamy się na klimacie, unikalnych pomysłach i dopracowanych szczegółach.
     </p>
-
 </section>
-
-
 
 <section id="contact">
-
     <h2>Kontakt</h2>
-
     <p>
-        Email:
-        <a href="mailto:baczynskim@proton.me">
-            baczynskim@proton.me
-        </a>
+        Email: <a href="mailto:baczynskim@proton.me">baczynskim@proton.me</a>
     </p>
-
 </section>
 
-
 <footer>
-    © 2026 ZENMAT STUDIO
+    © 2026 ZENMAT STUDIO • Wszystkie prawa zastrzeżone
 </footer>
 
-
 <script src="script.js"></script>
-
 </body>
 </html>
