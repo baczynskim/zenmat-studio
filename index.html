@@ -5,71 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ZENMAT STUDIO</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <header>
     <nav>
-        <h2>ZENMAT</h2>
-        <div>
+        <div class="logo">ZENMAT</div>
+        <div class="nav-links">
             <a href="#games">Projekty</a>
-            <a href="#about">Studio</a>
+            <a href="#about">O nas</a>
             <a href="#contact">Kontakt</a>
         </div>
     </nav>
 
-    <section class="hero">
-        <h1>Indie studio tworzące<br><span class="highlight">gry i doświadczenia cyfrowe</span></h1>
-        <p>Łączymy mrok, kreatywność i technologię,<br>tworząc światy, które zostają w pamięci.</p>
-        <button onclick="scrollGames()">Zobacz projekty</button>
-    </section>
+    <div class="hero">
+        <h1>Tworzymy światy,<br>które czujesz</h1>
+        <p class="subtitle">Indie studio | Gry • Doświadczenia cyfrowe • Strony internetowe</p>
+        <button onclick="scrollToSection('games')">Poznaj nasze projekty</button>
+    </div>
 </header>
 
-<section id="games">
-    <h2>Projekty ZENMAT</h2>
-    <div class="cards">
-        <div class="card">
-            <div class="card-icon">📻</div>
+<section id="games" class="section">
+    <h2>Nasze Projekty</h2>
+    <div class="projects-grid">
+        
+        <div class="project-card">
+            <div class="emoji">📻</div>
             <h3>Sygnał</h3>
-            <p>Horror o opuszczonej stacji radiowej. Eksploruj, odsłuchuj stare transmisje i odkrywaj prawdę.</p>
-            <span class="status in-dev">W produkcji</span>
-            <button class="btn-play" onclick="window.open('/zenmat-studio/sygnal/', '_blank')">▶ GRAJ</button>
+            <p>Horror psychologiczny osadzony na opuszczonej stacji radiowej.</p>
+            <span class="tag in-dev">W produkcji</span>
+            <button class="play-btn" onclick="window.open('/zenmat-studio/sygnal/', '_blank')">▶ GRAJ</button>
         </div>
 
-        <div class="card">
-            <div class="card-icon">🥟</div>
+        <div class="project-card">
+            <div class="emoji">🥟</div>
             <h3>Obby Squishy Dumpling</h3>
-            <p>Dynamiczne obby pełne koloru, sekretów i squishy'ów. Szybka, uzależniająca zabawa.</p>
-            <span class="status in-dev">W produkcji</span>
+            <p>Kolorowe, dynamiczne obby z elementami kolekcjonerskimi.</p>
+            <span class="tag in-dev">W produkcji</span>
         </div>
 
-        <div class="card">
-            <div class="card-icon">🌐</div>
+        <div class="project-card">
+            <div class="emoji">🌐</div>
             <h3>Strony internetowe</h3>
-            <p>Nowoczesne, szybkie i estetyczne strony dla marek, twórców i firm.</p>
-            <span class="status service">Usługa</span>
+            <p>Nowoczesne, szybkie i dopracowane projekty webowe.</p>
+            <span class="tag service">Usługa</span>
         </div>
     </div>
 </section>
 
-<section id="about">
-    <h2>Kim jesteśmy</h2>
-    <p>
-        ZENMAT STUDIO to niezależne studio tworzące gry i projekty cyfrowe.<br>
-        Skupiamy się na klimacie, unikalnych pomysłach i dopracowanych szczegółach.
-    </p>
+<section id="about" class="section">
+    <h2>O Studiu</h2>
+    <div class="about-content">
+        <p>
+            ZENMAT STUDIO to niezależne studio, które łączy głęboki klimat, 
+            staranne wykonanie i autentyczne emocje. Tworzymy gry i doświadczenia, 
+            które zostają z Tobą na dłużej.
+        </p>
+    </div>
 </section>
 
-<section id="contact">
-    <h2>Kontakt</h2>
-    <p>
-        Email: <a href="mailto:baczynskim@proton.me">baczynskim@proton.me</a>
-    </p>
+<section id="contact" class="section contact">
+    <h2>Skontaktuj się z nami</h2>
+    <a href="mailto:baczynskim@proton.me" class="email">baczynskim@proton.me</a>
 </section>
 
 <footer>
-    © 2026 ZENMAT STUDIO • Wszystkie prawa zastrzeżone
+    © 2026 ZENMAT STUDIO
 </footer>
 
 <script src="script.js"></script>
