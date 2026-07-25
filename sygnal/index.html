@@ -24,27 +24,40 @@
 
     <!-- EKRAN GRY -->
     <div id="gameScreen" class="screen">
-        <div class="game-content">
+        <div class="game-content wide">
             <div class="top-bar">
                 <h2>STACJA RADIOWA</h2>
                 <button id="journalBtn" class="btn small ghost">📓 DZIENNIK</button>
+                <button id="backBtn" class="btn small ghost">← WYJDŹ</button>
             </div>
 
             <div id="inventoryBar" class="inventory-bar"></div>
 
-            <div id="station" class="station"></div>
-
-            <div class="radio-box">
-                <p id="radioStatus">RADIO: OFF</p>
-                <button id="radioBtn" class="btn small">R - Włącz Radio</button>
-                <button id="respondBtn" class="btn small">E - Odpowiedz</button>
-                <button id="destroyBtn" class="btn small">Q - Zniszcz</button>
-                <button id="playTapeBtn" class="btn small">P - Odtwórz Taśmę</button>
+            <div class="canvas-wrap">
+                <canvas id="gameCanvas" width="900" height="600"></canvas>
+                <p id="message" class="message overlay-message"></p>
             </div>
 
-            <p id="message" class="message"></p>
+            <div class="hud-hint">
+                WASD / Strzałki - Ruch &nbsp;|&nbsp;
+                R - Radio &nbsp;|&nbsp; E - Odpowiedz &nbsp;|&nbsp;
+                Q - Zniszcz &nbsp;|&nbsp; P - Taśma
+            </div>
 
-            <button id="backBtn" class="btn back">← WYJDŹ</button>
+            <div id="touchControls" class="touch-controls">
+                <div class="dpad">
+                    <button id="tUp" class="dbtn up">▲</button>
+                    <button id="tLeft" class="dbtn left">◀</button>
+                    <button id="tRight" class="dbtn right">▶</button>
+                    <button id="tDown" class="dbtn down">▼</button>
+                </div>
+                <div class="actions">
+                    <button id="tR" class="abtn">R</button>
+                    <button id="tE" class="abtn">E</button>
+                    <button id="tQ" class="abtn">Q</button>
+                    <button id="tP" class="abtn">P</button>
+                </div>
+            </div>
         </div>
     </div>
 
