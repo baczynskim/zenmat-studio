@@ -21,12 +21,23 @@ let gameState = {
 
 // Show/Hide screens
 function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
+    console.log('showScreen called with:', screenId);
+    const screens = document.querySelectorAll('.screen');
+    console.log('Found screens:', screens.length);
+    screens.forEach(s => s.classList.remove('active'));
+    const targetScreen = document.getElementById(screenId);
+    console.log('Target screen:', targetScreen);
+    if (targetScreen) {
+        targetScreen.classList.add('active');
+        console.log('Added active class to:', screenId);
+    } else {
+        console.error('Screen not found:', screenId);
+    }
 }
 
 // START GAME
 function startGame() {
+    console.log('startGame called');
     gameState = {
         radioOn: false,
         inBasement: false,
@@ -44,6 +55,7 @@ function startGame() {
         ],
         messageIndex: 0
     };
+    console.log('Showing gameScreen');
     showScreen('gameScreen');
     updateRadioStatus();
     clearMessage();
