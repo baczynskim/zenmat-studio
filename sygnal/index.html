@@ -34,14 +34,14 @@
             <div id="inventoryBar" class="inventory-bar"></div>
 
             <div class="canvas-wrap">
-                <canvas id="gameCanvas" width="900" height="600"></canvas>
+                <canvas id="gameCanvas" width="1200" height="700"></canvas>
                 <p id="message" class="message overlay-message"></p>
             </div>
 
             <div class="hud-hint">
                 WASD / Strzałki - Ruch &nbsp;|&nbsp;
                 R - Radio &nbsp;|&nbsp; E - Odpowiedz &nbsp;|&nbsp;
-                Q - Zniszcz &nbsp;|&nbsp; P - Taśma
+                Q - Zniszcz &nbsp;|&nbsp; P - Taśma &nbsp;|&nbsp; F - Panel
             </div>
 
             <div id="touchControls" class="touch-controls">
@@ -56,8 +56,44 @@
                     <button id="tE" class="abtn">E</button>
                     <button id="tQ" class="abtn">Q</button>
                     <button id="tP" class="abtn">P</button>
+                    <button id="tF" class="abtn">F</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- PANEL GENERATORA (KEYPAD) -->
+    <div id="keypadModal" class="modal">
+        <div class="modal-box keypad-box">
+            <h2>⚡ PANEL GENERATORA</h2>
+            <p class="keypad-hint">Wprowadź 3-cyfrowy kod ze znalezionych fragmentów.</p>
+            <div id="keypadDisplay" class="keypad-display">_ _ _</div>
+            <div class="keypad-grid">
+                <button class="kbtn" data-d="1">1</button>
+                <button class="kbtn" data-d="2">2</button>
+                <button class="kbtn" data-d="3">3</button>
+                <button class="kbtn" data-d="4">4</button>
+                <button class="kbtn" data-d="5">5</button>
+                <button class="kbtn" data-d="6">6</button>
+                <button class="kbtn" data-d="7">7</button>
+                <button class="kbtn" data-d="8">8</button>
+                <button class="kbtn" data-d="9">9</button>
+                <button id="kClear" class="kbtn wide">WYCZYŚĆ</button>
+                <button class="kbtn" data-d="0">0</button>
+                <button id="kSubmit" class="kbtn wide submit">ZATWIERDŹ</button>
+            </div>
+            <button id="closeKeypadBtn" class="btn small ghost">ZAMKNIJ</button>
+        </div>
+    </div>
+
+    <!-- GAME OVER: ZŁAPANY -->
+    <div id="gameOverScreen" class="screen">
+        <div class="ending-box caught-box">
+            <h2>ZŁAPANY</h2>
+            <p>Coś było szybsze niż myślałeś.</p>
+            <p class="red">Ciemność Cię dogoniła.</p>
+            <button id="retryBtn" class="btn">SPRÓBUJ PONOWNIE</button>
+            <button class="btn back-menu">MENU</button>
         </div>
     </div>
 
