@@ -223,6 +223,105 @@ body {
     width: 100%;
 }
 
+.game-content.wide {
+    max-width: 940px;
+}
+
+.canvas-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin: 15px auto;
+}
+
+#gameCanvas {
+    background: #050505;
+    border: 3px solid #ff0000;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.5);
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+}
+
+.overlay-message {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    padding: 8px 20px;
+    border: 1px solid #ff0000;
+    max-width: 90%;
+    min-height: 0;
+    pointer-events: none;
+}
+
+.hud-hint {
+    text-align: center;
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* TOUCH CONTROLS - hidden by default, shown on coarse pointer (touch) devices */
+.touch-controls {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    gap: 20px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+@media (pointer: coarse) {
+    .touch-controls {
+        display: flex;
+    }
+    .hud-hint {
+        display: none;
+    }
+}
+
+.dpad {
+    display: grid;
+    grid-template-columns: 44px 44px 44px;
+    grid-template-rows: 44px 44px;
+    gap: 4px;
+}
+
+.dbtn {
+    border: 2px solid #ff0000;
+    background: rgba(10, 10, 10, 0.9);
+    color: #ff0000;
+    font-size: 1.2em;
+    border-radius: 6px;
+    touch-action: none;
+}
+
+.dbtn.up { grid-column: 2; grid-row: 1; }
+.dbtn.left { grid-column: 1; grid-row: 2; }
+.dbtn.right { grid-column: 3; grid-row: 2; }
+.dbtn.down { grid-column: 2; grid-row: 2; }
+
+.actions {
+    display: grid;
+    grid-template-columns: 50px 50px;
+    gap: 8px;
+}
+
+.abtn {
+    border: 2px solid #666;
+    background: rgba(10, 10, 10, 0.9);
+    color: #aaa;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 6px;
+    padding: 12px 0;
+    touch-action: none;
+}
+
 .top-bar {
     display: flex;
     align-items: center;
