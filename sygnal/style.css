@@ -307,7 +307,7 @@ body {
 
 .actions {
     display: grid;
-    grid-template-columns: 50px 50px;
+    grid-template-columns: repeat(3, 50px);
     gap: 8px;
 }
 
@@ -517,6 +517,93 @@ body {
     font-style: italic;
     text-align: center;
     padding: 30px 0;
+}
+
+/* KEYPAD MODAL */
+.keypad-box {
+    max-width: 340px;
+    text-align: center;
+}
+
+.keypad-hint {
+    color: #aaa;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.keypad-display {
+    font-size: 2em;
+    letter-spacing: 8px;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff00;
+    margin-bottom: 20px;
+    background: rgba(0, 255, 0, 0.05);
+    border: 1px solid #00ff00;
+    padding: 10px;
+}
+
+.keypad-display.error {
+    color: #ff0000;
+    text-shadow: 0 0 10px #ff0000;
+    border-color: #ff0000;
+    background: rgba(255, 0, 0, 0.08);
+    animation: shakeX 0.3s;
+}
+
+@keyframes shakeX {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.keypad-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.kbtn {
+    padding: 14px 0;
+    border: 2px solid #666;
+    background: rgba(10, 10, 10, 0.9);
+    color: #ccc;
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.kbtn:hover {
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.kbtn.wide {
+    grid-column: span 3;
+    font-size: 0.85em;
+}
+
+.kbtn.submit {
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.kbtn.submit:hover {
+    background: #00ff00;
+    color: #0a0a0a;
+}
+
+/* GAME OVER / CAUGHT */
+.caught-box {
+    border-color: #ff0000 !important;
+    animation: pulseRed 1.2s infinite;
+}
+
+@keyframes pulseRed {
+    0%, 100% { box-shadow: 0 0 50px rgba(255, 0, 0, 0.6); }
+    50% { box-shadow: 0 0 80px rgba(255, 0, 0, 0.9); }
 }
 
 /* RESPONSIVE */
