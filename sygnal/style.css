@@ -327,6 +327,7 @@ body {
 .actions {
     display: grid;
     grid-template-columns: repeat(3, 50px);
+    grid-template-rows: repeat(2, auto);
     gap: 8px;
 }
 
@@ -612,6 +613,33 @@ body {
 .kbtn.submit:hover {
     background: #00ff00;
     color: #0a0a0a;
+}
+
+/* LEVER PUZZLE */
+.lever-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.lever-btn {
+    padding: 16px 14px;
+    border: 2px solid #666;
+    background: rgba(10, 10, 10, 0.9);
+    color: #ccc;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 80px;
+    transition: all 0.2s;
+}
+
+.lever-btn.up {
+    border-color: #00ff00;
+    color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 /* GAME OVER / CAUGHT */
