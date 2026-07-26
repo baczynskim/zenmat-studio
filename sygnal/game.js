@@ -1,17 +1,25 @@
-// SYGNAŁ - Game Logic v4 (Bigger map + Puzzle + Patrolling Entity)
+// SYGNAŁ - Game Logic v5 (Bigger Map + Hiding + Lever Puzzle + Rebalanced Entity)
 
-const SAVE_KEY = 'sygnal_save_v4';
-const W = 1200, H = 700;
+const SAVE_KEY = 'sygnal_save_v5';
+const W = 1500, H = 900;
 
 // ---------- WORLD LAYOUT ----------
 const ZONES = {
-    entrance:  { x: 20,  y: 460, w: 200, h: 200, color: '#1a1a2e', label: 'WEJŚCIE' },
-    control:   { x: 20,  y: 20,  w: 220, h: 220, color: '#1a2e2e', label: 'SALA KONTROLI' },
-    archive:   { x: 960, y: 20,  w: 220, h: 220, color: '#2e1a2e', label: 'ARCHIWUM' },
-    basement:  { x: 320, y: 460, w: 200, h: 200, color: '#2e1a1a', label: 'PIWNICA' },
-    generator: { x: 620, y: 460, w: 200, h: 200, color: '#242424', label: 'GENERATOR' },
-    tower:     { x: 920, y: 460, w: 200, h: 200, color: '#2e2a1a', label: 'WIEŻA NADAWCZA' },
-    strych:    { x: 490, y: 20,  w: 220, h: 220, color: '#22261a', label: 'STRYCH' }
+    control:   { x: 40,   y: 20,  w: 220, h: 220, color: '#1a2e2e', label: 'SALA KONTROLI' },
+    strych:    { x: 640,  y: 20,  w: 220, h: 220, color: '#22261a', label: 'STRYCH' },
+    archive:   { x: 1240, y: 20,  w: 220, h: 220, color: '#2e1a2e', label: 'ARCHIWUM' },
+
+    kotlownia: { x: 40,   y: 300, w: 220, h: 200, color: '#242424', label: 'KOTŁOWNIA' },
+    biuro:     { x: 1240, y: 300, w: 220, h: 200, color: '#1a1a1a', label: 'BIURO DYREKTORA' },
+
+    entrance:  { x: 40,   y: 620, w: 200, h: 200, color: '#1a1a2e', label: 'WEJŚCIE' },
+    basement:  { x: 480,  y: 620, w: 200, h: 200, color: '#2e1a1a', label: 'PIWNICA' },
+    generator: { x: 900,  y: 620, w: 200, h: 200, color: '#242424', label: 'GENERATOR' },
+    tower:     { x: 1260, y: 620, w: 200, h: 200, color: '#2e2a1a', label: 'WIEŻA NADAWCZA' },
+
+    schowek1:  { x: 300,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
+    schowek2:  { x: 700,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
+    schowek3:  { x: 1100, y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' }
 };
 
 const OUTER_WALLS = [
@@ -21,29 +29,37 @@ const OUTER_WALLS = [
     { x: W - 20, y: 0, w: 20, h: H }
 ];
 
-const BASEMENT_DOOR = { x: 390, y: 452, w: 60, h: 24 };
-const TOWER_DOOR = { x: 990, y: 452, w: 60, h: 24 };
-const STRYCH_DOOR = { x: 570, y: 232, w: 60, h: 24 };
+const BASEMENT_DOOR = { x: 550, y: 612, w: 60, h: 24 };
+const TOWER_DOOR = { x: 1330, y: 612, w: 60, h: 24 };
+const STRYCH_DOOR = { x: 720, y: 232, w: 60, h: 24 };
+const OFFICE_DOOR = { x: 1232, y: 370, w: 24, h: 60 };
 
 const ITEM_DEFS = {
-    latarka: { x: 150, y: 600, label: '🔦' },
-    klucz:   { x: 130, y: 120, label: '🔑' },
-    tasma:   { x: 1070, y: 120, label: '📼' }
+    latarka: { x: 140, y: 760, label: '🔦' },
+    klucz:   { x: 150, y: 120, label: '🔑' },
+    tasma:   { x: 1350, y: 120, label: '📼' }
 };
 
-const RADIO_POS = { x: 420, y: 560, r: 26 };
-const TAPE_POS = { x: 1020, y: 560, r: 26 };
-const GENERATOR_POS = { x: 720, y: 560, r: 26 };
+const RADIO_POS = { x: 580, y: 720, r: 26 };
+const TAPE_POS = { x: 1360, y: 720, r: 26 };
+const GENERATOR_POS = { x: 1000, y: 720, r: 26 };
+const LEVER_POS = { x: 150, y: 400, r: 26 };
 
 const CODE = '472';
+const LEVER_TARGET = [true, false, true];
+
 const NOTES = {
     latarka: 'Notatka przy drzwiach: "Nie wchodźcie do piwnicy sami." Fragment kodu (1): 4',
     klucz: 'Log operatora, 1971: "Sygnał przyszedł znikąd. Odpowiedzieliśmy." Fragment kodu (2): 7',
     tasma: 'Etykieta na taśmie: "NAGRANIE #3 – NIE ODTWARZAĆ W NOCY" Fragment kodu (3): 2',
     basement: 'Piwnica: kable prowadzą do nadajnika. Ktoś nigdy go nie wyłączył.',
     tower: 'Na szczycie wieży: stary magnetofon. Pasuje do taśmy.',
-    generator: 'Generator huczy do życia. Zamek strychu się odblokował.',
-    strych: 'Strych: skrzynia pełna zdjęć. Wszyscy operatorzy mają ten sam pusty wzrok na oczach.'
+    generator: 'Generator huczy do życia. Zamek biura i strychu reagują na prąd.',
+    strych: 'Strych: skrzynia pełna zdjęć. Wszyscy operatorzy mają ten sam pusty wzrok na oczach.',
+    kotlownia: 'Instrukcja na ścianie kotłowni: "GÓRA - DÓŁ - GÓRA"',
+    kotlownia_solved: 'Dźwignie ustawione poprawnie. Coś w Biurze Dyrektora się odblokowało.',
+    biuro: 'Biuro Dyrektora: teczka "PROJEKT ECHO". Ostatni wpis: "Ono nie nadaje. Ono nasłuchuje."',
+    completionist: 'Odkryto wszystkie tajemnice stacji SYGNAŁ. Nie zostało już nic do znalezienia.'
 };
 
 const RADIO_MESSAGES = [
@@ -54,7 +70,11 @@ const RADIO_MESSAGES = [
     'coś się uczyło',
     'odpowiedź nadchodziła zanim pytaliśmy',
     'słyszysz nas?',
-    'zostań z nami'
+    'zostań z nami',
+    'ono też Cię słyszy',
+    'nie chowaj się za długo',
+    'projekt echo... wciąż aktywny',
+    'byliśmy tacy jak ty'
 ];
 
 // ---------- STATE ----------
@@ -67,7 +87,9 @@ function defaultState() {
         journal: [],
         messageIndex: 0,
         generatorSolved: false,
-        deathCount: 0
+        kotlowniaSolved: false,
+        deathCount: 0,
+        hiding: false
     };
 }
 
@@ -75,7 +97,7 @@ let state = defaultState();
 let sessionStart = 0;
 let scaresTriggered = 0;
 
-const SPAWN = { x: 110, y: 560 };
+const SPAWN = { x: 100, y: 760 };
 let player = { x: SPAWN.x, y: SPAWN.y, r: 12, speed: 3.4 };
 let keys = { up: false, down: false, left: false, right: false };
 let animId = null;
@@ -85,18 +107,16 @@ let shakeUntil = 0;
 let lastAmbientTime = 0;
 let lastStepTime = 0;
 let keypadInput = '';
+let leverStates = [false, false, false];
 
 // ---------- ENTITY ----------
 const ENTITY_WAYPOINTS = [
-    { x: 150, y: 350 }, { x: 1050, y: 350 }, { x: 1050, y: 280 }, { x: 150, y: 280 }
+    { x: 150, y: 560 }, { x: 1350, y: 560 }, { x: 1350, y: 520 }, { x: 150, y: 520 }
 ];
-let entity = {
-    x: 150, y: 350, r: 14, speed: 2.1, chaseSpeed: 3.5,
-    wpIndex: 0, mode: 'patrol', active: false
-};
+let entity = { x: 150, y: 560, r: 14, speed: 1.7, chaseSpeed: 2.7, wpIndex: 0, mode: 'patrol', active: false };
 
 function resetEntity() {
-    entity = { x: ENTITY_WAYPOINTS[0].x, y: ENTITY_WAYPOINTS[0].y, r: 14, speed: 2.1, chaseSpeed: 3.5, wpIndex: 0, mode: 'patrol', active: false };
+    entity = { x: ENTITY_WAYPOINTS[0].x, y: ENTITY_WAYPOINTS[0].y, r: 14, speed: 1.7, chaseSpeed: 2.7, wpIndex: 0, mode: 'patrol', active: false };
 }
 
 // ---------- SAVE / LOAD ----------
@@ -108,6 +128,7 @@ function saveGame() {
             journal: state.journal,
             messageIndex: state.messageIndex,
             generatorSolved: state.generatorSolved,
+            kotlowniaSolved: state.kotlowniaSolved,
             deathCount: state.deathCount
         }));
     } catch (e) {}
@@ -172,6 +193,7 @@ function playSuccessChime() {
     setTimeout(() => playBeep(900, 0.18, 'square'), 200);
 }
 function playStep() { playBeep(90, 0.04, 'square'); }
+function playDetect() { playBeep(300, 0.3, 'sawtooth'); }
 
 function playStatic(duration) {
     const ctx = getAudioCtx();
@@ -343,13 +365,24 @@ function updateObjective() {
     if (!hasAll) {
         text = '🎯 Cel: znajdź latarkę, klucz i taśmę w stacji.';
     } else if (!state.generatorSolved) {
-        text = '🎯 Cel: znajdź fragmenty kodu (sprawdź Dziennik) i uruchom Generator (F).';
+        text = '🎯 Cel: znajdź fragmenty kodu (Dziennik) i uruchom Generator (F).';
+    } else if (!state.kotlowniaSolved) {
+        text = '🎯 Cel: w Kotłowni ustaw dźwignie wg instrukcji (F), by otworzyć Biuro.';
+    } else if (!state.visited.biuro) {
+        text = '🎯 Cel: Biuro Dyrektora jest już otwarte — sprawdź je.';
     } else if (!state.visited.strych) {
-        text = '🎯 Cel: strych jest teraz odblokowany — sprawdź, co tam jest.';
+        text = '🎯 Cel: Strych jest odblokowany — sprawdź, co tam jest.';
     } else {
-        text = '🎯 Cel: zdecyduj, co zrobisz z sygnałem w Piwnicy (R/E/Q) lub w Wieży (P).';
+        text = '🎯 Cel: zdecyduj, co zrobisz z sygnałem (Piwnica: R/E/Q, Wieża: P).';
     }
     el.textContent = text;
+}
+
+function checkCompletion() {
+    const done = state.inventory.latarka && state.inventory.klucz && state.inventory.tasma &&
+        state.generatorSolved && state.kotlowniaSolved &&
+        state.visited.basement && state.visited.tower && state.visited.strych && state.visited.biuro;
+    if (done) addJournal('completionist', NOTES.completionist);
 }
 
 // ---------- COLLISION / WORLD HELPERS ----------
@@ -359,6 +392,7 @@ function getWalls() {
     const allItems = state.inventory.klucz && state.inventory.latarka && state.inventory.tasma;
     if (!allItems) walls.push(TOWER_DOOR);
     if (!state.generatorSolved) walls.push(STRYCH_DOOR);
+    if (!state.kotlowniaSolved) walls.push(OFFICE_DOOR);
     return walls;
 }
 
@@ -386,6 +420,10 @@ function getCurrentZone(x, y) {
     return 'korytarz';
 }
 
+function isSchowek(zone) {
+    return zone === 'schowek1' || zone === 'schowek2' || zone === 'schowek3';
+}
+
 function dist(x1, y1, x2, y2) {
     return Math.hypot(x1 - x2, y1 - y2);
 }
@@ -398,7 +436,7 @@ function anyModalOpen() {
 function triggerScare(type) {
     if (scare.active) return;
     scaresTriggered++;
-    const big = type === 'basement_first' || type === 'tower_first' || type === 'strych_first';
+    const big = type === 'basement_first' || type === 'tower_first' || type === 'strych_first' || type === 'biuro_first';
     scare.active = true;
     scare.type = type;
     flashFrames = big ? 5 : 3;
@@ -413,13 +451,19 @@ function triggerScare(type) {
 function maybeAmbientScare(now) {
     const itemsOwned = Object.values(state.inventory).filter(Boolean).length;
     if (itemsOwned === 0) return;
-    if (scare.active) return;
+    if (scare.active || state.hiding) return;
     if (now - lastAmbientTime < 15000) return;
     lastAmbientTime = now + Math.random() * 6000;
     if (Math.random() < 0.5) triggerScare('ambient');
 }
 
 // ---------- ENTITY AI ----------
+function moveEntityToward(tx, ty, speed) {
+    const ang = Math.atan2(ty - entity.y, tx - entity.x);
+    entity.x += Math.cos(ang) * speed;
+    entity.y += Math.sin(ang) * speed;
+}
+
 function updateEntity(now) {
     const itemsOwned = Object.values(state.inventory).filter(Boolean).length;
     if (!entity.active) {
@@ -427,29 +471,35 @@ function updateEntity(now) {
         else return;
     }
 
+    if (state.hiding && entity.mode === 'chase') {
+        entity.mode = 'patrol';
+    }
+
+    const wp = ENTITY_WAYPOINTS[entity.wpIndex];
+
+    if (state.hiding) {
+        const d = dist(entity.x, entity.y, wp.x, wp.y);
+        if (d < 6) entity.wpIndex = (entity.wpIndex + 1) % ENTITY_WAYPOINTS.length;
+        else moveEntityToward(wp.x, wp.y, entity.speed);
+        return;
+    }
+
     const dToPlayer = dist(entity.x, entity.y, player.x, player.y);
 
     if (entity.mode === 'patrol') {
-        if (dToPlayer < 260) {
+        if (dToPlayer < 230) {
             entity.mode = 'chase';
+            playDetect();
         } else {
-            const wp = ENTITY_WAYPOINTS[entity.wpIndex];
             const d = dist(entity.x, entity.y, wp.x, wp.y);
-            if (d < 6) {
-                entity.wpIndex = (entity.wpIndex + 1) % ENTITY_WAYPOINTS.length;
-            } else {
-                const ang = Math.atan2(wp.y - entity.y, wp.x - entity.x);
-                entity.x += Math.cos(ang) * entity.speed;
-                entity.y += Math.sin(ang) * entity.speed;
-            }
+            if (d < 6) entity.wpIndex = (entity.wpIndex + 1) % ENTITY_WAYPOINTS.length;
+            else moveEntityToward(wp.x, wp.y, entity.speed);
         }
     } else if (entity.mode === 'chase') {
-        if (dToPlayer > 430) {
+        if (dToPlayer > 400) {
             entity.mode = 'patrol';
         } else {
-            const ang = Math.atan2(player.y - entity.y, player.x - entity.x);
-            entity.x += Math.cos(ang) * entity.chaseSpeed;
-            entity.y += Math.sin(ang) * entity.chaseSpeed;
+            moveEntityToward(player.x, player.y, entity.chaseSpeed);
         }
     }
 
@@ -472,50 +522,68 @@ function getCaught() {
     playShriek('big');
     setTimeout(() => {
         stopLoop();
-        renderStats('statsGameOver', true);
+        renderStats('statsGameOver');
         showScreen('gameOverScreen');
         window.__gameOverTriggered = false;
     }, 500);
+}
+
+// ---------- HIDING ----------
+function toggleHiding() {
+    const zone = getCurrentZone(player.x, player.y);
+    if (!isSchowek(zone) && !state.hiding) {
+        setMessage('⚠ Brak kryjówki w pobliżu.', { duration: 1800 });
+        return;
+    }
+    state.hiding = !state.hiding;
+    playClick();
+    if (state.hiding) {
+        setMessage('🙈 Ukryty. Nie widzi Cię. (H - wyjdź)', { sticky: true });
+    } else {
+        clearMessageNow();
+    }
 }
 
 // ---------- UPDATE ----------
 function update(now) {
     if (anyModalOpen()) return;
 
-    let dx = 0, dy = 0;
-    if (keys.up) dy -= 1;
-    if (keys.down) dy += 1;
-    if (keys.left) dx -= 1;
-    if (keys.right) dx += 1;
-    if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
+    if (!state.hiding) {
+        let dx = 0, dy = 0;
+        if (keys.up) dy -= 1;
+        if (keys.down) dy += 1;
+        if (keys.left) dx -= 1;
+        if (keys.right) dx += 1;
+        if (dx !== 0 && dy !== 0) { dx *= 0.7071; dy *= 0.7071; }
 
-    const nx = player.x + dx * player.speed;
-    const ny = player.y + dy * player.speed;
-    if (dx !== 0 && canMoveTo(nx, player.y)) player.x = nx;
-    if (dy !== 0 && canMoveTo(player.x, ny)) player.y = ny;
+        const nx = player.x + dx * player.speed;
+        const ny = player.y + dy * player.speed;
+        if (dx !== 0 && canMoveTo(nx, player.y)) player.x = nx;
+        if (dy !== 0 && canMoveTo(player.x, ny)) player.y = ny;
 
-    if ((dx !== 0 || dy !== 0) && now - lastStepTime > 380) {
-        lastStepTime = now;
-        playStep();
-    }
-
-    const zone = getCurrentZone(player.x, player.y);
-    if (zone !== state.currentRoom) {
-        state.currentRoom = zone;
-        onEnterZone(zone);
-    }
-
-    Object.keys(ITEM_DEFS).forEach(key => {
-        if (state.inventory[key]) return;
-        const def = ITEM_DEFS[key];
-        if (dist(player.x, player.y, def.x, def.y) < player.r + 16) {
-            grantItem(key);
-            addJournal(key, NOTES[key]);
-            setMessage(def.label + ' ZNALEZIONO: ' + ITEM_LABELS[key].split(' ').slice(1).join(' '), { duration: 3000 });
-            renderInventory();
-            updateObjective();
+        if ((dx !== 0 || dy !== 0) && now - lastStepTime > 380) {
+            lastStepTime = now;
+            playStep();
         }
-    });
+
+        const zone = getCurrentZone(player.x, player.y);
+        if (zone !== state.currentRoom) {
+            state.currentRoom = zone;
+            onEnterZone(zone);
+        }
+
+        Object.keys(ITEM_DEFS).forEach(key => {
+            if (state.inventory[key]) return;
+            const def = ITEM_DEFS[key];
+            if (dist(player.x, player.y, def.x, def.y) < player.r + 16) {
+                grantItem(key);
+                addJournal(key, NOTES[key]);
+                setMessage(def.label + ' ZNALEZIONO: ' + ITEM_LABELS[key].split(' ').slice(1).join(' '), { duration: 3000 });
+                renderInventory();
+                updateObjective();
+            }
+        });
+    }
 
     maybeAmbientScare(now);
     if (!scare.active) updateEntity(now);
@@ -538,7 +606,18 @@ function onEnterZone(zone) {
         addJournal('strych', NOTES.strych);
         setTimeout(() => triggerScare('strych_first'), 350);
     }
+    if (zone === 'kotlownia' && !state.visited.kotlownia) {
+        state.visited.kotlownia = true;
+        addJournal('kotlownia', NOTES.kotlownia);
+        setMessage('📋 Znaleziono instrukcję na ścianie.', { duration: 2500 });
+    }
+    if (zone === 'biuro' && !state.visited.biuro) {
+        state.visited.biuro = true;
+        addJournal('biuro', NOTES.biuro);
+        setTimeout(() => triggerScare('biuro_first'), 350);
+    }
     updateObjective();
+    checkCompletion();
 }
 
 // ---------- DRAW ----------
@@ -563,7 +642,7 @@ function draw(now) {
         ctx.strokeRect(z.x, z.y, z.w, z.h);
         ctx.fillStyle = 'rgba(255,255,255,0.35)';
         ctx.font = '13px monospace';
-        ctx.fillText(z.label, z.x + 10, z.y + 18);
+        ctx.fillText(z.label, z.x + 8, z.y + 16);
     });
 
     ctx.fillStyle = '#3a3a3a';
@@ -572,6 +651,7 @@ function draw(now) {
     if (!state.inventory.klucz) drawLockedDoor(ctx, BASEMENT_DOOR);
     if (!(state.inventory.klucz && state.inventory.latarka && state.inventory.tasma)) drawLockedDoor(ctx, TOWER_DOOR);
     if (!state.generatorSolved) drawLockedDoor(ctx, STRYCH_DOOR);
+    if (!state.kotlowniaSolved) drawLockedDoor(ctx, OFFICE_DOOR);
 
     Object.keys(ITEM_DEFS).forEach(key => {
         if (state.inventory[key]) return;
@@ -583,21 +663,24 @@ function draw(now) {
     drawConsole(ctx, RADIO_POS.x, RADIO_POS.y, state.radioOn);
     drawConsole(ctx, TAPE_POS.x, TAPE_POS.y, false);
     drawConsole(ctx, GENERATOR_POS.x, GENERATOR_POS.y, state.generatorSolved);
+    drawConsole(ctx, LEVER_POS.x, LEVER_POS.y, state.kotlowniaSolved);
 
     if (entity.active) drawEntity(ctx);
 
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
-    ctx.fillStyle = '#00ff66';
-    ctx.shadowColor = '#00ff66';
-    ctx.shadowBlur = 14;
-    ctx.fill();
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
+    if (!state.hiding) {
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#00ff66';
+        ctx.shadowColor = '#00ff66';
+        ctx.shadowBlur = 14;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
 
-    const radius = state.inventory.latarka ? 190 : 120;
+    const radius = state.hiding ? 40 : (state.inventory.latarka ? 190 : 120);
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0,0,0,0.88)';
     ctx.fillRect(-20, -20, W + 40, H + 40);
@@ -614,14 +697,15 @@ function draw(now) {
 
     ctx.restore();
 
-    // safety net: player marker always drawn on top, guaranteed visible regardless of overlay
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, player.r * 0.55, 0, Math.PI * 2);
-    ctx.fillStyle = '#aaffcc';
-    ctx.shadowColor = '#00ff88';
-    ctx.shadowBlur = 16;
-    ctx.fill();
-    ctx.shadowBlur = 0;
+    if (!state.hiding) {
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.r * 0.55, 0, Math.PI * 2);
+        ctx.fillStyle = '#aaffcc';
+        ctx.shadowColor = '#00ff88';
+        ctx.shadowBlur = 16;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    }
 
     if (scare.active) drawMonster(ctx, scare.type === 'ambient');
 
@@ -718,6 +802,7 @@ function stopLoop() {
 function nearRadio() { return dist(player.x, player.y, RADIO_POS.x, RADIO_POS.y) < player.r + RADIO_POS.r; }
 function nearTape() { return dist(player.x, player.y, TAPE_POS.x, TAPE_POS.y) < player.r + TAPE_POS.r; }
 function nearGenerator() { return dist(player.x, player.y, GENERATOR_POS.x, GENERATOR_POS.y) < player.r + GENERATOR_POS.r; }
+function nearLevers() { return dist(player.x, player.y, LEVER_POS.x, LEVER_POS.y) < player.r + LEVER_POS.r; }
 
 function toggleRadio() {
     playClick();
@@ -824,11 +909,59 @@ function keypadSubmit() {
         closeKeypad();
         setMessage('⚡ Generator uruchomiony. Strych odblokowany.', { duration: 3000 });
         updateObjective();
+        checkCompletion();
     } else {
         playError();
         const el = document.getElementById('keypadDisplay');
         el.classList.add('error');
         setTimeout(() => { keypadInput = ''; updateKeypadDisplay(); }, 500);
+    }
+}
+
+// ---------- LEVER PUZZLE ----------
+function openLeverModal() {
+    if (state.kotlowniaSolved) {
+        setMessage('Dźwignie już ustawione poprawnie.', { duration: 2000 });
+        return;
+    }
+    leverStates = [false, false, false];
+    renderLevers();
+    document.getElementById('leverModal').classList.add('active');
+}
+
+function closeLeverModal() {
+    document.getElementById('leverModal').classList.remove('active');
+}
+
+function renderLevers() {
+    document.querySelectorAll('.lever-btn').forEach((btn, i) => {
+        btn.textContent = leverStates[i] ? '⬆ GÓRA' : '⬇ DÓŁ';
+        btn.classList.toggle('up', leverStates[i]);
+    });
+}
+
+function toggleLever(i) {
+    leverStates[i] = !leverStates[i];
+    renderLevers();
+}
+
+function submitLevers() {
+    const correct = leverStates.every((v, i) => v === LEVER_TARGET[i]);
+    if (correct) {
+        state.kotlowniaSolved = true;
+        playSuccessChime();
+        addJournal('kotlownia_solved', NOTES.kotlownia_solved);
+        saveGame();
+        closeLeverModal();
+        setMessage('🔧 Dźwignie ustawione. Biuro odblokowane.', { duration: 3000 });
+        updateObjective();
+        checkCompletion();
+    } else {
+        playError();
+        const box = document.querySelector('#leverModal .modal-box');
+        box.style.animation = 'none';
+        void box.offsetWidth;
+        box.style.animation = 'shakeX 0.3s';
     }
 }
 
@@ -864,6 +997,7 @@ function startGame(fromSave) {
             state.journal = saved.journal || [];
             state.messageIndex = saved.messageIndex || 0;
             state.generatorSolved = saved.generatorSolved || false;
+            state.kotlowniaSolved = saved.kotlowniaSolved || false;
             state.deathCount = saved.deathCount || 0;
         }
     } else {
@@ -884,6 +1018,7 @@ function startGame(fromSave) {
 function respawnPlayer() {
     player = { x: SPAWN.x, y: SPAWN.y, r: 12, speed: 3.4 };
     resetEntity();
+    state.hiding = false;
     scare = { active: false, type: null };
     flashFrames = 0;
     shakeUntil = 0;
@@ -933,11 +1068,18 @@ document.querySelectorAll('.kbtn[data-d]').forEach(btn => {
     btn.addEventListener('click', () => { playClick(); keypadDigit(btn.dataset.d); });
 });
 
+document.getElementById('closeLeverBtn').addEventListener('click', () => { playClick(); closeLeverModal(); });
+document.getElementById('leverSubmit').addEventListener('click', () => { playClick(); submitLevers(); });
+document.querySelectorAll('.lever-btn').forEach((btn, i) => {
+    btn.addEventListener('click', () => { playClick(); toggleLever(i); });
+});
+
 document.getElementById('retryBtn').addEventListener('click', () => {
     respawnPlayer();
     showScreen('gameScreen');
     clearMessageNow();
     renderInventory();
+    updateObjective();
     startLoop();
 });
 
@@ -948,6 +1090,12 @@ function setKey(key, val) {
     if (key === 'd' || key === 'arrowright') keys.right = val;
 }
 
+function handlePanelKey() {
+    if (nearGenerator()) openKeypad();
+    else if (nearLevers()) openLeverModal();
+    else setMessage('⚠ Brak panelu tutaj.', { duration: 1800 });
+}
+
 document.addEventListener('keydown', (e) => {
     const key = e.key.toLowerCase();
 
@@ -956,6 +1104,11 @@ document.addEventListener('keydown', (e) => {
         if (key === 'backspace') keypadClear();
         if (key === 'enter') keypadSubmit();
         if (key === 'escape') closeKeypad();
+        return;
+    }
+    if (document.getElementById('leverModal').classList.contains('active')) {
+        if (key === 'enter') submitLevers();
+        if (key === 'escape') closeLeverModal();
         return;
     }
     if (document.getElementById('journalModal').classList.contains('active')) {
@@ -969,7 +1122,8 @@ document.addEventListener('keydown', (e) => {
     if (key === 'e') respondSignal();
     if (key === 'q') destroyRadio();
     if (key === 'p') playTape();
-    if (key === 'f') { if (nearGenerator()) openKeypad(); else setMessage('⚠ Brak panelu tutaj.', { duration: 1800 }); }
+    if (key === 'f') handlePanelKey();
+    if (key === 'h') toggleHiding();
     if (key === 'escape') backToMenu();
     checkEasterEgg(e);
 });
@@ -1005,11 +1159,14 @@ if (tQ) tQ.addEventListener('click', destroyRadio);
 const tP = document.getElementById('tP');
 if (tP) tP.addEventListener('click', playTape);
 const tF = document.getElementById('tF');
-if (tF) tF.addEventListener('click', () => { if (nearGenerator()) openKeypad(); else setMessage('⚠ Brak panelu tutaj.', { duration: 1800 }); });
+if (tF) tF.addEventListener('click', handlePanelKey);
+const tH = document.getElementById('tH');
+if (tH) tH.addEventListener('click', toggleHiding);
 
 // ---------- INIT ----------
 renderMenu();
 
-console.log('🎮 SYGNAŁ Game Ready (v4 - Bigger Map + Puzzle + Entity)');
-console.log('Ruch: WASD / Strzałki | R-Radio | E-Odpowiedz | Q-Zniszcz | P-Taśma | F-Panel | ESC-Menu');
-console.log('Znajdź fragmenty kodu, rozwiąż zagadkę generatora, i uważaj na to, co patroluje korytarze.');
+console.log('🎮 SYGNAŁ Game Ready (v5 - Bigger Map + Hiding + Lever Puzzle)');
+console.log('Ruch: WASD / Strzałki | R-Radio | E-Odpowiedz | Q-Zniszcz | P-Taśma | F-Panel | H-Schowaj | ESC-Menu');
+console.log('Nowość: schowki (H), Kotłownia z zagadką dźwigni, zamknięte Biuro Dyrektora.');
+console.log('Wróg jest teraz wolniejszy niż gracz — da się przed nim uciec.');
