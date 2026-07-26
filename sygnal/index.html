@@ -36,14 +36,14 @@
             <div id="objective" class="objective"></div>
 
             <div class="canvas-wrap">
-                <canvas id="gameCanvas" width="1200" height="700"></canvas>
+                <canvas id="gameCanvas" width="1500" height="900"></canvas>
                 <p id="message" class="message overlay-message"></p>
             </div>
 
             <div class="hud-hint">
                 WASD / Strzałki - Ruch &nbsp;|&nbsp;
                 R - Radio &nbsp;|&nbsp; E - Odpowiedz &nbsp;|&nbsp;
-                Q - Zniszcz &nbsp;|&nbsp; P - Taśma &nbsp;|&nbsp; F - Panel
+                Q - Zniszcz &nbsp;|&nbsp; P - Taśma &nbsp;|&nbsp; F - Panel &nbsp;|&nbsp; H - Schowaj się
             </div>
 
             <div id="touchControls" class="touch-controls">
@@ -59,8 +59,24 @@
                     <button id="tQ" class="abtn">Q</button>
                     <button id="tP" class="abtn">P</button>
                     <button id="tF" class="abtn">F</button>
+                    <button id="tH" class="abtn">H</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- PANEL DŹWIGNI (KOTŁOWNIA) -->
+    <div id="leverModal" class="modal">
+        <div class="modal-box keypad-box">
+            <h2>🔧 PANEL DŹWIGNI</h2>
+            <p class="keypad-hint" id="leverHint">Ustaw dźwignie zgodnie z instrukcją.</p>
+            <div class="lever-row">
+                <button class="lever-btn" data-i="0">⬇ DOL</button>
+                <button class="lever-btn" data-i="1">⬇ DOL</button>
+                <button class="lever-btn" data-i="2">⬇ DOL</button>
+            </div>
+            <button id="leverSubmit" class="btn small">ZATWIERDŹ</button>
+            <button id="closeLeverBtn" class="btn small ghost">ZAMKNIJ</button>
         </div>
     </div>
 
