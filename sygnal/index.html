@@ -28,10 +28,12 @@
             <div class="top-bar">
                 <h2>STACJA RADIOWA</h2>
                 <button id="journalBtn" class="btn small ghost">📓 DZIENNIK</button>
+                <button id="muteBtn" class="btn small ghost">🔊</button>
                 <button id="backBtn" class="btn small ghost">← WYJDŹ</button>
             </div>
 
             <div id="inventoryBar" class="inventory-bar"></div>
+            <div id="objective" class="objective"></div>
 
             <div class="canvas-wrap">
                 <canvas id="gameCanvas" width="1200" height="700"></canvas>
@@ -92,6 +94,7 @@
             <h2>ZŁAPANY</h2>
             <p>Coś było szybsze niż myślałeś.</p>
             <p class="red">Ciemność Cię dogoniła.</p>
+            <p id="statsGameOver" class="stats-line"></p>
             <button id="retryBtn" class="btn">SPRÓBUJ PONOWNIE</button>
             <button class="btn back-menu">MENU</button>
         </div>
@@ -113,6 +116,7 @@
             <p>Niszczysz nadajnik.</p>
             <p>Sygnał znika.</p>
             <p class="red">Ale w domu radio włącza się samo...</p>
+            <p id="statsEnding1" class="stats-line"></p>
             <button class="btn back-menu">MENU</button>
         </div>
     </div>
@@ -125,6 +129,7 @@
             <p>Cisza.</p>
             <p>"Dziękujemy. Teraz możemy przejść dalej."</p>
             <p class="red">Ekran gaśnie.</p>
+            <p id="statsEnding2" class="stats-line"></p>
             <button class="btn back-menu">MENU</button>
         </div>
     </div>
@@ -137,6 +142,7 @@
             <p>Kilka dni później...</p>
             <p>Na całym świecie ludzie słyszą ten sam sygnał.</p>
             <p class="red">Coś właśnie się zaczęło.</p>
+            <p id="statsEnding3" class="stats-line"></p>
             <button class="btn back-menu">MENU</button>
         </div>
     </div>
@@ -150,6 +156,7 @@
             <p>To była stacja, próbująca kogoś ostrzec.</p>
             <p class="red">Zbyt późno dla tych, którzy nadawali pierwsi.</p>
             <p class="red">W samą porę dla Ciebie.</p>
+            <p id="statsEnding4" class="stats-line"></p>
             <button class="btn back-menu">MENU</button>
         </div>
     </div>
