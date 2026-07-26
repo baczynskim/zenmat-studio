@@ -264,6 +264,25 @@ body {
     letter-spacing: 1px;
 }
 
+.objective {
+    text-align: center;
+    color: #ffcc00;
+    font-size: 0.95em;
+    margin: 6px 0 10px;
+    min-height: 20px;
+    text-shadow: 0 0 6px rgba(255, 204, 0, 0.5);
+    letter-spacing: 0.5px;
+}
+
+.stats-line {
+    color: #666;
+    font-size: 0.85em;
+    margin-top: 10px !important;
+    border-top: 1px dashed #444;
+    padding-top: 12px;
+    letter-spacing: 0.5px;
+}
+
 /* TOUCH CONTROLS - hidden by default, shown on coarse pointer (touch) devices */
 .touch-controls {
     display: none;
