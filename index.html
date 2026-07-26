@@ -1,83 +1,660 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZENMAT STUDIO</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZENMAT STUDIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0c10;
+    --bg-soft: #12151b;
+    --ink: #eeece6;
+    --ink-dim: #8b909c;
+    --line: rgba(238,236,230,0.12);
+    --amber: #ffb020;
+    --amber-dim: #6b4a1a;
+    --squishy: #ff5fa2;
+    --squishy-dim: #5c2a44;
+    --web: #4fd8d8;
+    --web-dim: #1e4d4d;
+    --accent: var(--amber);
+    --accent-dim: var(--amber-dim);
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection{ background: var(--accent); color: #0a0c10; }
+
+  a{ color: inherit; text-decoration: none; }
+
+  :focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  .wrap{
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* scanline + noise texture, sits behind everything */
+  .noise-layer{
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+  }
+  .scanlines{
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.0) 0px,
+      rgba(0,0,0,0.0) 2px,
+      rgba(0,0,0,0.18) 3px
+    );
+    opacity: 0.35;
+  }
+
+  /* ===== NAV ===== */
+  header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(10,12,16,0.75);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 18px 32px;
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+  .brand{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.02em;
+  }
+  .brand .dot{ color: var(--accent); }
+  .nav-links{
+    display:flex;
+    gap: 36px;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .nav-links a{
+    color: var(--ink-dim);
+    transition: color 0.2s ease;
+    position: relative;
+  }
+  .nav-links a:hover{ color: var(--ink); }
+  .nav-freq{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size: 11px;
+    color: var(--ink-dim);
+    letter-spacing: 0.06em;
+  }
+  .live-dot{
+    width:6px; height:6px; border-radius:50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; }
+    50%{ opacity:0.35; }
+  }
+  @media (max-width: 720px){
+    .nav-links{ display:none; }
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    position: relative;
+    padding: 120px 32px 100px;
+    max-width: 1160px;
+    margin: 0 auto;
+    z-index: 3;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--ink-dim);
+    margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .eyebrow .live-dot{ width:5px; height:5px; }
+
+  h1{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(38px, 7vw, 78px);
+    line-height: 1.04;
+    letter-spacing: -0.01em;
+    max-width: 820px;
+  }
+  h1 .glow{
+    color: var(--accent);
+    position: relative;
+    display: inline-block;
+  }
+
+  .hero-sub{
+    margin-top: 26px;
+    font-size: clamp(16px, 2vw, 19px);
+    color: var(--ink-dim);
+    max-width: 480px;
+    line-height: 1.6;
+  }
+
+  .cta-row{
+    margin-top: 44px;
+    display:flex;
+    align-items:center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background: var(--accent);
+    color: #0a0c10;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    padding: 16px 26px;
+    border-radius: 3px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0 0 rgba(255,176,32,0);
+  }
+  .btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255,176,32,0.25);
+  }
+
+  .freq-readout{
+    font-size: 13px;
+    color: var(--ink-dim);
+    letter-spacing: 0.05em;
+  }
+  .freq-readout .num{
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* tuning waveform */
+  .waveform{
+    margin-top: 70px;
+    height: 64px;
+    width: 100%;
+    max-width: 720px;
+  }
+  .waveform svg{ width:100%; height:100%; display:block; }
+  .waveform path{
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    fill: none;
+    opacity: 0.7;
+  }
+
+  /* ===== SECTION SHARED ===== */
+  section{
+    position: relative;
+    z-index: 3;
+    padding: 100px 0;
+    border-top: 1px solid var(--line);
+  }
+  .section-head{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    margin-bottom: 56px;
+    flex-wrap: wrap;
+  }
+  h2{
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 4vw, 44px);
+    letter-spacing: -0.01em;
+  }
+  .section-eyebrow{
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* ===== CHANNELS (Projekty) ===== */
+  .channel{
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 28px;
+    align-items: center;
+    padding: 34px 20px;
+    border-top: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.35s ease;
+    position: relative;
+  }
+  .channel:last-child{ border-bottom: 1px solid var(--line); }
+
+  .channel-freq{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: var(--ink-dim);
+    transition: color 0.3s ease;
+  }
+
+  .channel-main h3{
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 700;
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .channel-main p{
+    color: var(--ink-dim);
+    font-size: 15px;
+    max-width: 480px;
+    line-height: 1.55;
+  }
+
+  .channel-side{
+    display:flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    text-align: right;
+  }
+  .badge{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+  .channel-link{
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--ink-dim);
+    transition: color 0.3s ease, gap 0.2s ease;
+    display:flex;
+    align-items:center;
+    gap: 6px;
+  }
+  .channel-link svg{ width:14px; height:14px; transition: transform 0.2s ease; }
+
+  .channel:hover{
+    background: var(--accent-dim);
+  }
+  .channel:hover .channel-freq,
+  .channel:hover .channel-link{
+    color: var(--accent);
+  }
+  .channel:hover .channel-link svg{ transform: translateX(3px); }
+  .channel:hover .badge{ border-color: var(--accent); color: var(--accent); }
+
+  .channel[data-tone="squishy"]:hover{ background: var(--squishy-dim); }
+  .channel[data-tone="squishy"]:hover .channel-freq,
+  .channel[data-tone="squishy"]:hover .channel-link,
+  .channel[data-tone="squishy"]:hover .badge{ color: var(--squishy); border-color: var(--squishy); }
+
+  .channel[data-tone="web"]:hover{ background: var(--web-dim); }
+  .channel[data-tone="web"]:hover .channel-freq,
+  .channel[data-tone="web"]:hover .channel-link,
+  .channel[data-tone="web"]:hover .badge{ color: var(--web); border-color: var(--web); }
+
+  @media (max-width: 640px){
+    .channel{
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .channel-side{ align-items: flex-start; text-align: left; flex-direction: row; }
+  }
+
+  /* ===== STUDIO ===== */
+  .studio-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+  }
+  .studio-text p{
+    font-size: clamp(17px, 2.2vw, 21px);
+    line-height: 1.65;
+    color: var(--ink);
+    max-width: 480px;
+  }
+  .studio-text p + p{ margin-top: 20px; color: var(--ink-dim); font-size: 16px; }
+
+  .dial{
+    justify-self: end;
+    align-self: center;
+    width: 220px;
+    height: 220px;
+    position: relative;
+  }
+  .dial svg{ width:100%; height:100%; }
+  .dial-ring{
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .dial-needle{
+    stroke: var(--accent);
+    stroke-width: 2;
+    transform-origin: 110px 110px;
+    animation: sweep 6s ease-in-out infinite;
+  }
+  @keyframes sweep{
+    0%,100%{ transform: rotate(-35deg); }
+    50%{ transform: rotate(35deg); }
+  }
+
+  @media (max-width: 780px){
+    .studio-grid{ grid-template-columns: 1fr; }
+    .dial{ justify-self: start; margin-top: 20px; }
+  }
+
+  /* ===== CONTACT ===== */
+  .contact-inner{
+    display:flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 36px;
+  }
+  .contact-inner .section-eyebrow{ margin-bottom: 0; }
+  .contact-inner h2{ max-width: 620px; }
+  .contact-sub{
+    color: var(--ink-dim);
+    font-size: 16px;
+    max-width: 460px;
+    line-height: 1.6;
+  }
+  .email-row{
+    display:flex;
+    align-items:center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .email-link{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(18px, 3.4vw, 30px);
+    font-weight: 500;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 4px;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .email-link:hover{ color: var(--accent); }
+  .copy-btn{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: var(--ink-dim);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 8px 12px;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .copy-btn:hover{ color: var(--accent); border-color: var(--accent); }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 28px 32px;
+  }
+  .footer-inner{
+    max-width: 1160px;
+    margin: 0 auto;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    font-size: 12px;
+    color: var(--ink-dim);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .footer-live{
+    display:flex; align-items:center; gap:8px;
+    letter-spacing: 0.06em;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation: none !important; transition: none !important; }
+  }
+</style>
 </head>
 <body>
 
-<nav>
-    <div class="logo">ZENMAT<span class="dot">.</span></div>
-    <div class="menu">
-        <a href="#projects">PROJEKTY</a>
-        <a href="#studio">STUDIO</a>
-        <a href="#contact">KONTAKT</a>
-    </div>
-</nav>
+<canvas class="noise-layer" id="noise"></canvas>
+<div class="scanlines"></div>
 
-<section class="hero">
-    <div class="hero-content">
-        <h1>Tworzymy to,<br>co zapada<br>w pamięć</h1>
-        <p>Indie studio z duszą. Gry. Doświadczenia. Strony.</p>
-        <button onclick="scrollToSection('projects')">ZOBACZ NASZE ŚWIATY</button>
+<header>
+  <div class="nav">
+    <div class="brand">ZENMAT<span class="dot">.</span></div>
+    <nav class="nav-links">
+      <a href="#projekty">PROJEKTY</a>
+      <a href="#studio">STUDIO</a>
+      <a href="#kontakt">KONTAKT</a>
+    </nav>
+    <div class="nav-freq mono">
+      <span class="live-dot"></span> NADAJEMY&nbsp;·&nbsp;<span id="nav-freq-num">88.40</span> MHz
     </div>
-</section>
+  </div>
+</header>
 
-<section id="projects" class="projects">
-    <h2>Projekty</h2>
-    
-    <div class="project-grid">
-        <div class="project big">
-            <div class="overlay">
-                <span class="tag">W PRODUKCJI</span>
-                <h3>📻 SYGNAŁ</h3>
-                <p>Horror na opuszczonej stacji radiowej</p>
-                <button onclick="window.open('https://baczynskim.github.io/zenmat-studio/sygnal/', '_blank')">GRAJ →</button>
-            </div>
+<main>
+  <section class="hero" style="border-top:none; padding-top:110px;">
+    <div class="eyebrow mono"><span class="live-dot"></span> INDIE STUDIO Z DUSZĄ</div>
+    <h1>Tworzymy to, co <span class="glow">zapada w pamięć</span>.</h1>
+    <p class="hero-sub">Gry, doświadczenia i strony internetowe. Trzy różne częstotliwości — jeden sygnał, który chcemy, żebyś zapamiętał.</p>
+    <div class="cta-row">
+      <a class="btn" href="#projekty">ZOBACZ NASZE ŚWIATY →</a>
+      <span class="freq-readout mono">SYGNAŁ SIŁA: <span class="num">98%</span></span>
+    </div>
+    <div class="waveform">
+      <svg viewBox="0 0 720 64" preserveAspectRatio="none">
+        <path id="wave-path" d="M0,32 L720,32"></path>
+      </svg>
+    </div>
+  </section>
+
+  <section id="projekty">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <div class="section-eyebrow mono">PROJEKTY</div>
+          <h2>Przełącz kanał.</h2>
         </div>
+      </div>
 
-        <div class="project">
-            <div class="overlay">
-                <span class="tag">W PRODUKCJI</span>
-                <h3>🥟 OBBY SQUISHY</h3>
-                <p>Kolorowe szaleństwo platformówek</p>
-            </div>
+      <div class="channel" data-tone="amber" tabindex="0">
+        <div class="channel-freq">88.4</div>
+        <div class="channel-main">
+          <h3>📻 SYGNAŁ</h3>
+          <p>Horror na opuszczonej stacji radiowej. Coś tam wciąż nadaje — pytanie, czy chcesz odebrać.</p>
         </div>
-
-        <div class="project">
-            <div class="overlay">
-                <span class="tag">USŁUGA</span>
-                <h3>🌐 STRONY WWW</h3>
-                <p>Estetyczne i szybkie rozwiązania</p>
-            </div>
+        <div class="channel-side">
+          <span class="badge mono">W PRODUKCJI</span>
+          <span class="channel-link">GRAJ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
-    </div>
-</section>
+      </div>
 
-<section id="studio" class="studio">
-    <div class="studio-text">
-        <h2>Jesteśmy ZENMAT</h2>
-        <p>
-            Niezależne studio, które stawia na klimat, emocje i detale. 
-            Tworzymy rzeczy, które po prostu <strong>dobrze się czuje</strong>.
-        </p>
-    </div>
-</section>
+      <div class="channel" data-tone="squishy" tabindex="0">
+        <div class="channel-freq">106.2</div>
+        <div class="channel-main">
+          <h3>🥟 OBBY SQUISHY</h3>
+          <p>Kolorowe szaleństwo platformówek, w którym upadek boli mniej niż wstyd przed znajomymi.</p>
+        </div>
+        <div class="channel-side">
+          <span class="badge mono">W PRODUKCJI</span>
+          <span class="channel-link">GRAJ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
 
-<section id="contact" class="contact">
-    <h2>Zróbmy coś razem</h2>
-    <a href="mailto:baczynskim@proton.me" class="mail-link">
-        zenmatstudio@gmail.com
-    </a>
-</section>
+      <div class="channel" data-tone="web" tabindex="0">
+        <div class="channel-freq">100.0</div>
+        <div class="channel-main">
+          <h3>🌐 STRONY WWW</h3>
+          <p>Usługa: estetyczne, szybkie strony bez zbędnego szumu. Czysty sygnał od pierwszego wejścia.</p>
+        </div>
+        <div class="channel-side">
+          <span class="badge mono">USŁUGA</span>
+          <span class="channel-link">NAPISZ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="studio">
+    <div class="wrap studio-grid">
+      <div class="studio-text">
+        <div class="section-eyebrow mono">STUDIO</div>
+        <h2 style="margin-bottom:24px;">Jesteśmy ZENMAT.</h2>
+        <p>Niezależne studio, które stawia na klimat, emocje i detale.</p>
+        <p>Nie gonimy za trendami — szukamy pomysłów, które da się poczuć, nie tylko zobaczyć. Jeśli coś nie brzmi, nie wygląda i nie działa dobrze, nie wypuszczamy tego.</p>
+      </div>
+      <div class="dial" aria-hidden="true">
+        <svg viewBox="0 0 220 220">
+          <circle class="dial-ring" cx="110" cy="110" r="95"></circle>
+          <circle class="dial-ring" cx="110" cy="110" r="70"></circle>
+          <line class="dial-needle" x1="110" y1="110" x2="110" y2="30"></line>
+          <circle cx="110" cy="110" r="4" fill="#ffb020"></circle>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt">
+    <div class="wrap contact-inner">
+      <div class="section-eyebrow mono">KONTAKT</div>
+      <h2>Zróbmy coś razem.</h2>
+      <p class="contact-sub">Masz pomysł wart nadania? Napisz do nas — odpowiadamy szybko i bez automatów.</p>
+      <div class="email-row">
+        <a class="email-link" href="mailto:zenmatstudio@gmail.com">zenmatstudio@gmail.com</a>
+        <button class="copy-btn" id="copy-btn">SKOPIUJ</button>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer>
-    © 2026 ZENMAT STUDIO • Made with passion
+  <div class="footer-inner">
+    <span>© 2026 ZENMAT STUDIO</span>
+    <span class="footer-live mono"><span class="live-dot"></span>Zrobione z pasją</span>
+  </div>
 </footer>
 
-<script src="script.js"></script>
+<script>
+  // ambient static noise on canvas, low opacity
+  const canvas = document.getElementById('noise');
+  const ctx = canvas.getContext('2d');
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function drawNoise(){
+    const w = canvas.width, h = canvas.height;
+    const imgData = ctx.createImageData(w, h);
+    const buffer = new Uint32Array(imgData.data.buffer);
+    for(let i=0;i<buffer.length;i++){
+      const v = (Math.random()*255)|0;
+      buffer[i] = (255<<24) | (v<<16) | (v<<8) | v;
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+  let last = 0;
+  function loop(t){
+    if(!reduceMotion && t - last > 90){
+      drawNoise();
+      last = t;
+    }
+    requestAnimationFrame(loop);
+  }
+  if(!reduceMotion){ requestAnimationFrame(loop); }
+
+  // tuning waveform, redrawn to look like a live signal
+  const wavePath = document.getElementById('wave-path');
+  function makeWave(){
+    let d = 'M0,32 ';
+    for(let x=0; x<=720; x+=12){
+      const y = 32 + Math.sin(x*0.04 + performance.now()*0.0015) * (6 + Math.random()*10);
+      d += `L${x},${y.toFixed(1)} `;
+    }
+    wavePath.setAttribute('d', d);
+  }
+  if(!reduceMotion){
+    setInterval(makeWave, 120);
+    makeWave();
+  }
+
+  // frequency ticker
+  const freqEl = document.getElementById('nav-freq-num');
+  let base = 88.40;
+  setInterval(()=>{
+    if(reduceMotion) return;
+    const jitter = (Math.random()*0.06 - 0.03);
+    freqEl.textContent = (base + jitter).toFixed(2);
+  }, 1400);
+
+  // copy email
+  const copyBtn = document.getElementById('copy-btn');
+  copyBtn.addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText('zenmatstudio@gmail.com');
+      copyBtn.textContent = 'SKOPIOWANO ✓';
+      setTimeout(()=>{ copyBtn.textContent = 'SKOPIUJ'; }, 1800);
+    }catch(e){
+      copyBtn.textContent = 'ZAZNACZ RĘCZNIE';
+      setTimeout(()=>{ copyBtn.textContent = 'SKOPIUJ'; }, 1800);
+    }
+  });
+</script>
+
 </body>
 </html>
