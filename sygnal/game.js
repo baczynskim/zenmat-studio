@@ -19,8 +19,12 @@ const ZONES = {
 
     schowek1:  { x: 300,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
     schowek2:  { x: 700,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
-    schowek3:  { x: 1100, y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' }
+    schowek3:  { x: 1100, y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
+
+    wyjscie:   { x: 1140, y: 660, w: 100, h: 120, color: '#0a1a0a', label: 'WYJŚCIE EWAKUACYJNE' }
 };
+
+const EVAC_DOOR = { x: 1165, y: 652, w: 50, h: 24 };
 
 const OUTER_WALLS = [
     { x: 0, y: 0, w: W, h: 20 },
@@ -45,6 +49,12 @@ const TAPE_POS = { x: 1360, y: 720, r: 26 };
 const GENERATOR_POS = { x: 1000, y: 720, r: 26 };
 const LEVER_POS = { x: 150, y: 400, r: 26 };
 
+const LORE_DEFS = {
+    lore1: { x: 300, y: 270, label: '📄' },
+    lore2: { x: 750, y: 270, label: '📄' },
+    lore3: { x: 1150, y: 270, label: '📄' }
+};
+
 const CODE = '472';
 const LEVER_TARGET = [true, false, true];
 
@@ -59,7 +69,10 @@ const NOTES = {
     kotlownia: 'Instrukcja na ścianie kotłowni: "GÓRA - DÓŁ - GÓRA"',
     kotlownia_solved: 'Dźwignie ustawione poprawnie. Coś w Biurze Dyrektora się odblokowało.',
     biuro: 'Biuro Dyrektora: teczka "PROJEKT ECHO". Ostatni wpis: "Ono nie nadaje. Ono nasłuchuje."',
-    completionist: 'Odkryto wszystkie tajemnice stacji SYGNAŁ. Nie zostało już nic do znalezienia.'
+    completionist: 'Odkryto wszystkie tajemnice stacji SYGNAŁ. Nie zostało już nic do znalezienia.',
+    lore1: 'Luźna kartka: "Dzień 4. Słyszę kroki w korytarzu, kiedy radio milczy."',
+    lore2: 'Luźna kartka: "Dzień 9. Nie jesteśmy pierwsi, którzy tu przyszli. Nie będziemy ostatni."',
+    lore3: 'Luźna kartka: "Dzień 12. Jeśli to czytasz — wyłącz radio i idź do wyjścia. Nie czekaj."'
 };
 
 const RADIO_MESSAGES = [
@@ -109,7 +122,7 @@ let lastStepTime = 0;
 let keypadInput = '';
 let leverStates = [false, false, false];
 
-// ---------- ENTITY ----------
+// ---------- ENTITY (Cień - patrols, chases when close) ----------
 const ENTITY_WAYPOINTS = [
     { x: 150, y: 560 }, { x: 1350, y: 560 }, { x: 1350, y: 520 }, { x: 150, y: 520 }
 ];
@@ -117,6 +130,14 @@ let entity = { x: 150, y: 560, r: 14, speed: 1.7, chaseSpeed: 2.7, wpIndex: 0, m
 
 function resetEntity() {
     entity = { x: ENTITY_WAYPOINTS[0].x, y: ENTITY_WAYPOINTS[0].y, r: 14, speed: 1.7, chaseSpeed: 2.7, wpIndex: 0, mode: 'patrol', active: false };
+}
+
+// ---------- ENTITY 2 (Cichy - drawn toward an active radio) ----------
+const CICHY_HOME = { x: 1450, y: 850 };
+let entity2 = { x: CICHY_HOME.x, y: CICHY_HOME.y, r: 13, speed: 1.9, homeSpeed: 1.0, active: false, warned: false };
+
+function resetEntity2() {
+    entity2 = { x: CICHY_HOME.x, y: CICHY_HOME.y, r: 13, speed: 1.9, homeSpeed: 1.0, active: false, warned: false };
 }
 
 // ---------- SAVE / LOAD ----------
@@ -372,20 +393,25 @@ function updateObjective() {
         text = '🎯 Cel: Biuro Dyrektora jest już otwarte — sprawdź je.';
     } else if (!state.visited.strych) {
         text = '🎯 Cel: Strych jest odblokowany — sprawdź, co tam jest.';
-    } else {
+    } else if (!isFullyComplete()) {
         text = '🎯 Cel: zdecyduj, co zrobisz z sygnałem (Piwnica: R/E/Q, Wieża: P).';
+    } else {
+        text = '🎯 Wszystko odkryte! Wyjście ewakuacyjne jest otwarte.';
     }
     el.textContent = text;
 }
 
 function checkCompletion() {
-    const done = state.inventory.latarka && state.inventory.klucz && state.inventory.tasma &&
-        state.generatorSolved && state.kotlowniaSolved &&
-        state.visited.basement && state.visited.tower && state.visited.strych && state.visited.biuro;
-    if (done) addJournal('completionist', NOTES.completionist);
+    if (isFullyComplete()) addJournal('completionist', NOTES.completionist);
 }
 
 // ---------- COLLISION / WORLD HELPERS ----------
+function isFullyComplete() {
+    return state.inventory.latarka && state.inventory.klucz && state.inventory.tasma &&
+        state.generatorSolved && state.kotlowniaSolved &&
+        state.visited.basement && state.visited.tower && state.visited.strych && state.visited.biuro;
+}
+
 function getWalls() {
     const walls = OUTER_WALLS.slice();
     if (!state.inventory.klucz) walls.push(BASEMENT_DOOR);
@@ -393,6 +419,7 @@ function getWalls() {
     if (!allItems) walls.push(TOWER_DOOR);
     if (!state.generatorSolved) walls.push(STRYCH_DOOR);
     if (!state.kotlowniaSolved) walls.push(OFFICE_DOOR);
+    if (!isFullyComplete()) walls.push(EVAC_DOOR);
     return walls;
 }
 
@@ -511,6 +538,34 @@ function updateEntity(now) {
     }
 }
 
+function updateEntity2(now) {
+    if (!entity2.active) return;
+    if (state.hiding) return;
+
+    if (state.radioOn) {
+        moveEntityLike(entity2, RADIO_POS.x, RADIO_POS.y, entity2.speed);
+        if (!entity2.warned && dist(entity2.x, entity2.y, RADIO_POS.x, RADIO_POS.y) < 220) {
+            entity2.warned = true;
+            setMessage('👂 Coś zbliża się do sygnału...', { duration: 2600 });
+        }
+    } else {
+        moveEntityLike(entity2, CICHY_HOME.x, CICHY_HOME.y, entity2.homeSpeed);
+    }
+
+    const dToPlayer = dist(entity2.x, entity2.y, player.x, player.y);
+    if (dToPlayer < player.r + entity2.r) {
+        getCaught();
+    }
+}
+
+function moveEntityLike(e, tx, ty, speed) {
+    const d = dist(e.x, e.y, tx, ty);
+    if (d < 6) return;
+    const ang = Math.atan2(ty - e.y, tx - e.x);
+    e.x += Math.cos(ang) * speed;
+    e.y += Math.sin(ang) * speed;
+}
+
 function getCaught() {
     if (window.__gameOverTriggered) return;
     window.__gameOverTriggered = true;
@@ -583,10 +638,21 @@ function update(now) {
                 updateObjective();
             }
         });
+
+        Object.keys(LORE_DEFS).forEach(key => {
+            if (state.visited[key]) return;
+            const def = LORE_DEFS[key];
+            if (dist(player.x, player.y, def.x, def.y) < player.r + 16) {
+                state.visited[key] = true;
+                addJournal(key, NOTES[key]);
+                setMessage(def.label + ' Znaleziono kartkę.', { duration: 2500 });
+                saveGame();
+            }
+        });
     }
 
     maybeAmbientScare(now);
-    if (!scare.active) updateEntity(now);
+    if (!scare.active) { updateEntity(now); updateEntity2(now); }
     saveGame();
 }
 
@@ -615,6 +681,18 @@ function onEnterZone(zone) {
         state.visited.biuro = true;
         addJournal('biuro', NOTES.biuro);
         setTimeout(() => triggerScare('biuro_first'), 350);
+    }
+    if (zone === 'wyjscie' && isFullyComplete() && !window.__endingTriggered) {
+        window.__endingTriggered = true;
+        setMessage('🚪 Drzwi się otwierają...', { sticky: true });
+        setTimeout(() => {
+            stopAmbientHum();
+            stopLoop();
+            playSuccessChime();
+            renderStats('statsEnding5');
+            showScreen('ending5');
+            window.__endingTriggered = false;
+        }, 1400);
     }
     updateObjective();
     checkCompletion();
@@ -652,12 +730,28 @@ function draw(now) {
     if (!(state.inventory.klucz && state.inventory.latarka && state.inventory.tasma)) drawLockedDoor(ctx, TOWER_DOOR);
     if (!state.generatorSolved) drawLockedDoor(ctx, STRYCH_DOOR);
     if (!state.kotlowniaSolved) drawLockedDoor(ctx, OFFICE_DOOR);
+    if (!isFullyComplete()) drawLockedDoor(ctx, EVAC_DOOR);
 
     Object.keys(ITEM_DEFS).forEach(key => {
         if (state.inventory[key]) return;
         const def = ITEM_DEFS[key];
+        const pulse = 0.75 + Math.sin(now / 260) * 0.25;
+        ctx.save();
+        ctx.globalAlpha = pulse;
         ctx.font = '22px serif';
         ctx.fillText(def.label, def.x - 11, def.y + 8);
+        ctx.restore();
+    });
+
+    Object.keys(LORE_DEFS).forEach(key => {
+        if (state.visited[key]) return;
+        const def = LORE_DEFS[key];
+        const pulse = 0.7 + Math.sin(now / 300 + 2) * 0.3;
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        ctx.font = '18px serif';
+        ctx.fillText(def.label, def.x - 9, def.y + 6);
+        ctx.restore();
     });
 
     drawConsole(ctx, RADIO_POS.x, RADIO_POS.y, state.radioOn);
@@ -665,7 +759,8 @@ function draw(now) {
     drawConsole(ctx, GENERATOR_POS.x, GENERATOR_POS.y, state.generatorSolved);
     drawConsole(ctx, LEVER_POS.x, LEVER_POS.y, state.kotlowniaSolved);
 
-    if (entity.active) drawEntity(ctx);
+    if (entity.active) drawEntity(ctx, now);
+    if (entity2.active) drawCichy(ctx, now);
 
     if (!state.hiding) {
         ctx.beginPath();
@@ -680,7 +775,9 @@ function draw(now) {
         ctx.shadowBlur = 0;
     }
 
-    const radius = state.hiding ? 40 : (state.inventory.latarka ? 190 : 120);
+    const baseRadius = state.hiding ? 40 : (state.inventory.latarka ? 190 : 120);
+    const flicker = state.hiding ? 0 : Math.sin(now / 130) * 6 + Math.sin(now / 47) * 3;
+    const radius = Math.max(30, baseRadius + flicker);
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0,0,0,0.88)';
     ctx.fillRect(-20, -20, W + 40, H + 40);
@@ -696,6 +793,13 @@ function draw(now) {
     ctx.globalCompositeOperation = 'source-over';
 
     ctx.restore();
+
+    // vignette
+    const vignette = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, 0, W, H);
 
     if (!state.hiding) {
         ctx.beginPath();
@@ -738,9 +842,10 @@ function drawConsole(ctx, x, y, active) {
     }
 }
 
-function drawEntity(ctx) {
+function drawEntity(ctx, now) {
+    const bob = Math.sin(now / 200) * 3;
     ctx.save();
-    ctx.translate(entity.x, entity.y);
+    ctx.translate(entity.x, entity.y + bob);
     ctx.fillStyle = 'rgba(10,0,0,0.85)';
     ctx.beginPath();
     ctx.ellipse(0, 6, 13, 20, 0, 0, Math.PI * 2);
@@ -754,6 +859,27 @@ function drawEntity(ctx) {
     ctx.beginPath();
     ctx.arc(-4, -15, 2, 0, Math.PI * 2);
     ctx.arc(4, -15, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawCichy(ctx, now) {
+    const bob = Math.sin(now / 260 + 1) * 4;
+    ctx.save();
+    ctx.translate(entity2.x, entity2.y + bob);
+    ctx.fillStyle = 'rgba(20,25,30,0.8)';
+    ctx.beginPath();
+    ctx.ellipse(0, 8, 11, 26, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(0, -20, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#dfefff';
+    ctx.shadowColor = '#dfefff';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(-3, -21, 1.6, 0, Math.PI * 2);
+    ctx.arc(3, -21, 1.6, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 }
@@ -812,6 +938,8 @@ function toggleRadio() {
     }
     state.radioOn = !state.radioOn;
     if (state.radioOn) {
+        entity2.active = true;
+        entity2.warned = false;
         playMessage();
         startAmbientHum();
     } else {
@@ -1018,6 +1146,7 @@ function startGame(fromSave) {
 function respawnPlayer() {
     player = { x: SPAWN.x, y: SPAWN.y, r: 12, speed: 3.4 };
     resetEntity();
+    resetEntity2();
     state.hiding = false;
     scare = { active: false, type: null };
     flashFrames = 0;
