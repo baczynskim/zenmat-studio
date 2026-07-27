@@ -1,30 +1,30 @@
 // SYGNAŁ - Game Logic v5 (Bigger Map + Hiding + Lever Puzzle + Rebalanced Entity)
 
 const SAVE_KEY = 'sygnal_save_v5';
-const W = 1500, H = 900;
+const W = 1800, H = 1100;
 
 // ---------- WORLD LAYOUT ----------
 const ZONES = {
-    control:   { x: 40,   y: 20,  w: 220, h: 220, color: '#1a2e2e', label: 'SALA KONTROLI' },
-    strych:    { x: 640,  y: 20,  w: 220, h: 220, color: '#22261a', label: 'STRYCH' },
-    archive:   { x: 1240, y: 20,  w: 220, h: 220, color: '#2e1a2e', label: 'ARCHIWUM' },
+    control:   { x: 50,   y: 20,  w: 260, h: 240, color: '#1a2e2e', label: 'SALA KONTROLI' },
+    strych:    { x: 770,  y: 20,  w: 260, h: 240, color: '#22261a', label: 'STRYCH' },
+    archive:   { x: 1490, y: 20,  w: 260, h: 240, color: '#2e1a2e', label: 'ARCHIWUM' },
 
-    kotlownia: { x: 40,   y: 300, w: 220, h: 200, color: '#242424', label: 'KOTŁOWNIA' },
-    biuro:     { x: 1240, y: 300, w: 220, h: 200, color: '#1a1a1a', label: 'BIURO DYREKTORA' },
+    kotlownia: { x: 50,   y: 340, w: 260, h: 220, color: '#242424', label: 'KOTŁOWNIA' },
+    biuro:     { x: 1490, y: 340, w: 260, h: 220, color: '#1a1a1a', label: 'BIURO DYREKTORA' },
 
-    entrance:  { x: 40,   y: 620, w: 200, h: 200, color: '#1a1a2e', label: 'WEJŚCIE' },
-    basement:  { x: 480,  y: 620, w: 200, h: 200, color: '#2e1a1a', label: 'PIWNICA' },
-    generator: { x: 900,  y: 620, w: 200, h: 200, color: '#242424', label: 'GENERATOR' },
-    tower:     { x: 1260, y: 620, w: 200, h: 200, color: '#2e2a1a', label: 'WIEŻA NADAWCZA' },
+    entrance:  { x: 50,   y: 760, w: 240, h: 240, color: '#1a1a2e', label: 'WEJŚCIE' },
+    basement:  { x: 580,  y: 760, w: 240, h: 240, color: '#2e1a1a', label: 'PIWNICA' },
+    generator: { x: 1080, y: 760, w: 240, h: 240, color: '#242424', label: 'GENERATOR' },
+    tower:     { x: 1520, y: 760, w: 240, h: 240, color: '#2e2a1a', label: 'WIEŻA NADAWCZA' },
 
-    schowek1:  { x: 300,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
-    schowek2:  { x: 700,  y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
-    schowek3:  { x: 1100, y: 520, w: 90,  h: 90,  color: '#101010', label: 'SCHOWEK' },
+    schowek1:  { x: 350,  y: 640, w: 110, h: 110, color: '#101010', label: 'SCHOWEK' },
+    schowek2:  { x: 820,  y: 640, w: 110, h: 110, color: '#101010', label: 'SCHOWEK' },
+    schowek3:  { x: 1300, y: 640, w: 110, h: 110, color: '#101010', label: 'SCHOWEK' },
 
-    wyjscie:   { x: 1140, y: 660, w: 100, h: 120, color: '#0a1a0a', label: 'WYJŚCIE EWAKUACYJNE' }
+    wyjscie:   { x: 1370, y: 800, w: 120, h: 150, color: '#0a1a0a', label: 'WYJŚCIE EWAKUACYJNE' }
 };
 
-const EVAC_DOOR = { x: 1165, y: 652, w: 50, h: 24 };
+const EVAC_DOOR = { x: 1405, y: 792, w: 50, h: 24 };
 
 const OUTER_WALLS = [
     { x: 0, y: 0, w: W, h: 20 },
@@ -33,26 +33,26 @@ const OUTER_WALLS = [
     { x: W - 20, y: 0, w: 20, h: H }
 ];
 
-const BASEMENT_DOOR = { x: 550, y: 612, w: 60, h: 24 };
-const TOWER_DOOR = { x: 1330, y: 612, w: 60, h: 24 };
-const STRYCH_DOOR = { x: 720, y: 232, w: 60, h: 24 };
-const OFFICE_DOOR = { x: 1232, y: 370, w: 24, h: 60 };
+const BASEMENT_DOOR = { x: 670, y: 752, w: 60, h: 24 };
+const TOWER_DOOR = { x: 1610, y: 752, w: 60, h: 24 };
+const STRYCH_DOOR = { x: 870, y: 252, w: 60, h: 24 };
+const OFFICE_DOOR = { x: 1482, y: 420, w: 24, h: 60 };
 
 const ITEM_DEFS = {
-    latarka: { x: 140, y: 760, label: '🔦' },
-    klucz:   { x: 150, y: 120, label: '🔑' },
-    tasma:   { x: 1350, y: 120, label: '📼' }
+    latarka: { x: 170, y: 920, label: '🔦' },
+    klucz:   { x: 180, y: 140, label: '🔑' },
+    tasma:   { x: 1620, y: 140, label: '📼' }
 };
 
-const RADIO_POS = { x: 580, y: 720, r: 26 };
-const TAPE_POS = { x: 1360, y: 720, r: 26 };
-const GENERATOR_POS = { x: 1000, y: 720, r: 26 };
-const LEVER_POS = { x: 150, y: 400, r: 26 };
+const RADIO_POS = { x: 700, y: 880, r: 26 };
+const TAPE_POS = { x: 1640, y: 880, r: 26 };
+const GENERATOR_POS = { x: 1200, y: 880, r: 26 };
+const LEVER_POS = { x: 180, y: 450, r: 26 };
 
 const LORE_DEFS = {
-    lore1: { x: 300, y: 270, label: '📄' },
-    lore2: { x: 750, y: 270, label: '📄' },
-    lore3: { x: 1150, y: 270, label: '📄' }
+    lore1: { x: 400, y: 300, label: '📄' },
+    lore2: { x: 900, y: 300, label: '📄' },
+    lore3: { x: 1400, y: 300, label: '📄' }
 };
 
 const CODE = '472';
@@ -110,7 +110,7 @@ let state = defaultState();
 let sessionStart = 0;
 let scaresTriggered = 0;
 
-const SPAWN = { x: 100, y: 760 };
+const SPAWN = { x: 130, y: 920 };
 let player = { x: SPAWN.x, y: SPAWN.y, r: 12, speed: 3.4 };
 let keys = { up: false, down: false, left: false, right: false };
 let animId = null;
@@ -119,12 +119,13 @@ let flashFrames = 0;
 let shakeUntil = 0;
 let lastAmbientTime = 0;
 let lastStepTime = 0;
+let lastHeartbeat = 0;
 let keypadInput = '';
 let leverStates = [false, false, false];
 
 // ---------- ENTITY (Cień - patrols, chases when close) ----------
 const ENTITY_WAYPOINTS = [
-    { x: 150, y: 560 }, { x: 1350, y: 560 }, { x: 1350, y: 520 }, { x: 150, y: 520 }
+    { x: 200, y: 700 }, { x: 1600, y: 700 }, { x: 1600, y: 650 }, { x: 200, y: 650 }
 ];
 let entity = { x: 150, y: 560, r: 14, speed: 1.7, chaseSpeed: 2.7, wpIndex: 0, mode: 'patrol', active: false };
 
@@ -133,7 +134,7 @@ function resetEntity() {
 }
 
 // ---------- ENTITY 2 (Cichy - drawn toward an active radio) ----------
-const CICHY_HOME = { x: 1450, y: 850 };
+const CICHY_HOME = { x: 1750, y: 1050 };
 let entity2 = { x: CICHY_HOME.x, y: CICHY_HOME.y, r: 13, speed: 1.9, homeSpeed: 1.0, active: false, warned: false };
 
 function resetEntity2() {
@@ -215,6 +216,10 @@ function playSuccessChime() {
 }
 function playStep() { playBeep(90, 0.04, 'square'); }
 function playDetect() { playBeep(300, 0.3, 'sawtooth'); }
+function playHeartbeat(strength) {
+    playBeep(70, 0.09, 'sine');
+    setTimeout(() => playBeep(60, 0.11, 'sine'), 120 + (1 - strength) * 60);
+}
 
 function playStatic(duration) {
     const ctx = getAudioCtx();
@@ -653,7 +658,21 @@ function update(now) {
 
     maybeAmbientScare(now);
     if (!scare.active) { updateEntity(now); updateEntity2(now); }
+    updateHeartbeat(now);
     saveGame();
+}
+
+function updateHeartbeat(now) {
+    if (state.hiding) return;
+    const d = nearestThreatDist();
+    const RANGE = 380;
+    if (d >= RANGE) return;
+    const proximity = 1 - d / RANGE;
+    const interval = 950 - proximity * 650;
+    if (now - lastHeartbeat > interval) {
+        lastHeartbeat = now;
+        playHeartbeat(proximity);
+    }
 }
 
 function onEnterZone(zone) {
@@ -699,6 +718,22 @@ function onEnterZone(zone) {
 }
 
 // ---------- DRAW ----------
+function activeThreats() {
+    const list = [];
+    if (entity.active) list.push({ x: entity.x, y: entity.y, color: '#ff3333', kind: 'cien' });
+    if (entity2.active) list.push({ x: entity2.x, y: entity2.y, color: '#99ccff', kind: 'cichy' });
+    return list;
+}
+
+function nearestThreatDist() {
+    let min = Infinity;
+    activeThreats().forEach(t => {
+        const d = dist(player.x, player.y, t.x, t.y);
+        if (d < min) min = d;
+    });
+    return min;
+}
+
 function draw(now) {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -794,12 +829,40 @@ function draw(now) {
 
     ctx.restore();
 
-    // vignette
+    // vignette (base + red danger pulse when a threat is close)
     const vignette = ctx.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.75);
     vignette.addColorStop(0, 'rgba(0,0,0,0)');
     vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, W, H);
+
+    const nearest = nearestThreatDist();
+    const DANGER_RANGE = 350;
+    if (nearest < DANGER_RANGE && !state.hiding) {
+        const proximity = 1 - nearest / DANGER_RANGE;
+        const pulse = 0.5 + Math.sin(now / 180) * 0.5;
+        const dangerAlpha = proximity * 0.35 * (0.6 + 0.4 * pulse);
+        ctx.fillStyle = 'rgba(180,0,0,' + dangerAlpha.toFixed(3) + ')';
+        ctx.fillRect(0, 0, W, H);
+    }
+
+    // proximity glow - lets a threat "poke through" darkness as it gets close
+    const GLOW_RANGE = 280;
+    if (!state.hiding) {
+        activeThreats().forEach(t => {
+            const d = dist(player.x, player.y, t.x, t.y);
+            if (d < GLOW_RANGE) {
+                const alpha = (1 - d / GLOW_RANGE) * 0.8;
+                const g = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, 34);
+                g.addColorStop(0, hexToRgba(t.color, alpha));
+                g.addColorStop(1, hexToRgba(t.color, 0));
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, 34, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+    }
 
     if (!state.hiding) {
         ctx.beginPath();
@@ -818,6 +881,59 @@ function draw(now) {
         ctx.fillRect(0, 0, W, H);
         flashFrames--;
     }
+
+    drawRadar(ctx, now);
+}
+
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha.toFixed(3) + ')';
+}
+
+function drawRadar(ctx, now) {
+    const cx = W - 90, cy = 90, r = 60;
+    const RADAR_RANGE = 550;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.55)';
+    ctx.fill();
+    ctx.strokeStyle = state.hiding ? '#444' : '#00ff00';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    if (!state.hiding) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#00ff66';
+        ctx.fill();
+
+        activeThreats().forEach(t => {
+            const d = dist(player.x, player.y, t.x, t.y);
+            if (d > RADAR_RANGE) return;
+            const ang = Math.atan2(t.y - player.y, t.x - player.x);
+            const scaled = Math.min(d / RADAR_RANGE, 1) * (r - 8);
+            const bx = cx + Math.cos(ang) * scaled;
+            const by = cy + Math.sin(ang) * scaled;
+            const pulse = 0.6 + Math.sin(now / 150) * 0.4;
+            const blipSize = 3 + (1 - d / RADAR_RANGE) * 4 * pulse;
+            ctx.beginPath();
+            ctx.arc(bx, by, blipSize, 0, Math.PI * 2);
+            ctx.fillStyle = t.color;
+            ctx.shadowColor = t.color;
+            ctx.shadowBlur = 8;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        });
+    } else {
+        ctx.fillStyle = 'rgba(150,150,150,0.6)';
+        ctx.font = '11px monospace';
+        ctx.fillText('UKRYTY', cx - 24, cy + 4);
+    }
+    ctx.restore();
 }
 
 function drawLockedDoor(ctx, d) {
@@ -1153,6 +1269,7 @@ function respawnPlayer() {
     shakeUntil = 0;
     lastAmbientTime = performance.now() + 6000;
     lastStepTime = 0;
+    lastHeartbeat = 0;
 }
 
 function backToMenu() {
