@@ -115,8 +115,8 @@
     position: relative; height: 46px; border: 1px solid var(--line); border-radius: 4px;
     background: linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
   }
-  .tuner-ticks{ position:absolute; inset:0; display:flex; align-items:center; padding: 0 22px; justify-content: space-between; pointer-events: none; }
-  .tuner-tick{ width:1px; height: 14px; background: var(--line); }
+  .tuner-ticks{ position:absolute; inset:0; pointer-events: none; }
+  .tuner-tick{ position:absolute; top:50%; transform:translate(-50%,-50%); width:1px; height: 14px; background: var(--line); }
   .tuner-tick.station{ height: 22px; background: var(--ink-dim); width: 2px; }
   .tuner-knob{
     position: absolute; top: 50%; width: 22px; height: 22px; border-radius: 50%;
@@ -162,6 +162,7 @@
   .channel[data-tone="amber"]{ --tone-rgb: 255,176,32; --tone: #ffb020; }
   .channel[data-tone="squishy"]{ --tone-rgb: 255,95,162; --tone: #ff5fa2; }
   .channel[data-tone="web"]{ --tone-rgb: 79,216,216; --tone: #4fd8d8; }
+  .channel[data-tone="fox"]{ --tone-rgb: 255,138,91; --tone: #ff8a5b; }
 
   .channel:hover, .channel:focus-visible{ background: rgba(var(--tone-rgb),0.12); }
   .channel:hover .channel-freq, .channel:hover .channel-link, .channel:hover .badge{ color: var(--tone); }
@@ -232,7 +233,7 @@
   <section class="hero" style="border-top:none; padding-top:110px;">
     <div class="eyebrow mono"><span class="live-dot"></span> INDIE STUDIO Z DUSZĄ</div>
     <h1>Tworzymy to, co <span class="glow" id="glow-word">zapada w pamięć</span>.</h1>
-    <p class="hero-sub">Gry, doświadczenia i strony internetowe. Trzy różne częstotliwości — przestrój się między nimi.</p>
+    <p class="hero-sub">Gry, doświadczenia i strony internetowe. Cztery różne częstotliwości — przestrój się między nimi.</p>
     <div class="cta-row">
       <button class="btn" id="cta-btn" data-target="#projekty">ZOBACZ NASZE ŚWIATY →</button>
       <span class="freq-readout mono">SYGNAŁ SIŁA: <span class="num">98%</span></span>
@@ -245,15 +246,18 @@
       </div>
       <div class="tuner-track" id="tuner-track">
         <div class="tuner-ticks">
-          <div class="tuner-tick station"></div>
-          <div class="tuner-tick"></div>
-          <div class="tuner-tick"></div>
-          <div class="tuner-tick station"></div>
-          <div class="tuner-tick"></div>
-          <div class="tuner-tick"></div>
-          <div class="tuner-tick station"></div>
+          <div class="tuner-tick station" style="left:0%"></div>
+          <div class="tuner-tick" style="left:11.1%"></div>
+          <div class="tuner-tick" style="left:22.2%"></div>
+          <div class="tuner-tick station" style="left:33.33%"></div>
+          <div class="tuner-tick" style="left:44.4%"></div>
+          <div class="tuner-tick" style="left:55.5%"></div>
+          <div class="tuner-tick station" style="left:66.66%"></div>
+          <div class="tuner-tick" style="left:77.7%"></div>
+          <div class="tuner-tick" style="left:88.8%"></div>
+          <div class="tuner-tick station" style="left:100%"></div>
         </div>
-        <div class="tuner-knob" id="tuner-knob" role="slider" aria-label="Przestrajanie kanałów" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0" tabindex="0"></div>
+        <div class="tuner-knob" id="tuner-knob" role="slider" aria-label="Przestrajanie kanałów" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0" tabindex="0"></div>
       </div>
       <div class="tuner-hint">Przeciągnij gałkę (lub użyj strzałek ←→), żeby przestroić stronę na inny projekt.</div>
     </div>
@@ -301,6 +305,18 @@
         <div class="channel-side">
           <span class="badge mono">USŁUGA</span>
           <span class="channel-link">NAPISZ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </a>
+
+      <a class="channel" data-tone="fox" data-station="3" data-subject="" href="skoczek.html" target="_blank" rel="noopener">
+        <div class="channel-freq">94.6</div>
+        <div class="channel-main">
+          <h3>🦊 SKOCZEK: LISKI BIEG</h3>
+          <p>Zręcznościowy runner — pędź przez las, przeskakuj przeszkody i zbieraj monety z lisim refleksem.</p>
+        </div>
+        <div class="channel-side">
+          <span class="badge mono">GRYWALNE DEMO</span>
+          <span class="channel-link">GRAJ <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </div>
       </a>
     </div>
@@ -378,7 +394,8 @@
   const STATIONS = [
     { freq: '88.4',  name: 'SYGNAŁ',       hex: '#ffb020', rgb: '255,176,32' },
     { freq: '106.2', name: 'OBBY SQUISHY', hex: '#ff5fa2', rgb: '255,95,162' },
-    { freq: '100.0', name: 'STRONY WWW',   hex: '#4fd8d8', rgb: '79,216,216' }
+    { freq: '100.0', name: 'STRONY WWW',   hex: '#4fd8d8', rgb: '79,216,216' },
+    { freq: '94.6',  name: 'SKOCZEK',      hex: '#ff8a5b', rgb: '255,138,91' }
   ];
   setInterval(()=>{
     if(reduceMotion) return;
@@ -432,7 +449,7 @@
   let currentStation = 0;
   let dragging = false;
 
-  function stationToPercent(i){ return i / 2; } // 0, 0.5, 1
+  function stationToPercent(i){ return i / 3; } // 0, 0.33, 0.66, 1
 
   function applyStation(i, animateKnob){
     currentStation = i;
@@ -451,7 +468,7 @@
       c.classList.toggle('is-tuned', c.dataset.station == i);
     });
 
-    const angle = -35 + (i/2) * 70;
+    const angle = -35 + (i/3) * 70;
     dialNeedle.style.transform = `rotate(${angle}deg)`;
     dialNeedle.style.stroke = st.hex;
     dialCenter.setAttribute('fill', st.hex);
@@ -464,8 +481,8 @@
   }
 
   function nearestStation(pct){
-    const idx = Math.round(pct * 2);
-    return Math.min(2, Math.max(0, idx));
+    const idx = Math.round(pct * 3);
+    return Math.min(3, Math.max(0, idx));
   }
 
   function startDrag(clientX){
@@ -500,7 +517,7 @@
   });
 
   knob.addEventListener('keydown', (e) => {
-    if(e.key === 'ArrowRight'){ applyStation(Math.min(2, currentStation+1), true); e.preventDefault(); }
+    if(e.key === 'ArrowRight'){ applyStation(Math.min(3, currentStation+1), true); e.preventDefault(); }
     if(e.key === 'ArrowLeft'){ applyStation(Math.max(0, currentStation-1), true); e.preventDefault(); }
   });
 
